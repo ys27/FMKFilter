@@ -1,0 +1,80 @@
+{
+    "유머/정보": [
+        { "유머/이슈/정보": "humor" },
+        { "미스터리/공포": "mystery" },
+        { "정치/시사": "news" },
+        { "디지털/컴퓨터/폰": "digital" }
+    ],
+    "축구": [
+        { "축구 소식통": "football_news" },
+        { "해외축구": "football_world" },
+        { "국내축구": "football_korean" }
+    ],
+    "쇼핑": [
+        { "핫딜": "hotdeal" }
+    ],
+    "갤러리": [
+        { "인물": "gallery_entertainment" },
+        { "걸그룹": "gallery_girlgroup" },
+        { "오덕양성소": "paint" },
+        { "음식/여행": "gallery_foods" },
+        { "양덕갤": "geek" },
+        { "동물": "gallery_animals" },
+        { "사진": "pictures" }
+    ],
+    "커뮤니티": [
+        { "패션": "fashion" },
+        { "잉여력놀이터": "sreckovic" },
+        { "연애상담": "love" },
+        { "공부": "study" },
+        { "자유": "free" },
+        { "자동차": "car" },
+        { "고민": "gomin" },
+        { "직장/알바/사업": "job" },
+        { "프로놀이터": "protobetting" }
+    ],
+    "기타": [
+        { "야구": "baseball" },
+        { "농구": "basketball" },
+        { "기타스포츠": "other_sports" },
+        { "비트코인": "coin" },
+        { "영화/TV": "movietvs" },
+        { "건강/아싸/돼지": "assapig" },
+        { "주식": "stock" },
+        { "퍼스나콘/로고": "personacon" },
+        { "인터넷방송": "ib" },
+        { "창작/도서": "writing" },
+        { "음악": "music" }
+    ],
+    "피파": [
+        { "피파온라인": "game_fifa" },
+        { "피파시리즈": "fifa_series" }
+    ],
+    "게임": {
+        "PC/기타": [
+            { "LOL": "lol" },
+            { "거상": "gersang" },
+            { "기타게임": "other_game" },
+            { "던파": "df" },
+            { "배틀그라운드": "battlegrounds" },
+            { "오버워치": "overwatch" },
+            { "포켓몬": "pokemon" },
+            { "메이플": "maple" },
+            { "하스스톤": "Hearthstone" },
+            { "WOW": "wow" }
+        ],
+        "모바일": [
+            { "소녀전선": "gf" },
+            { "모바일게임": "mgame" },
+            { "세븐나이츠": "Seven" }
+        ]
+    },
+    "2군": [
+        { "소규모/구게시판": "newboard" },
+        { "스타": "game_starcraft" },
+        { "디아블로": "diablo" },
+        { "풋볼데이": "footballday" },
+        { "핵스볼": "haxball" },
+        { "담배/주류": "enjoy" }
+    ]
+}
