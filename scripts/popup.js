@@ -87,9 +87,7 @@ function getListOfFilters(srcStr) {
     const filterRegex = /<li>\s*<a href="\/(\S*)">(.*\S*.*)<\/a>/;
     while (filterRegex.test(srcStr)) {
         const filter = filterRegex.exec(srcStr);
-        let obj = {};
-        obj[filter[2]] = filter[1];
-        list.push(obj);
+        list.push({[filter[2]]: filter[1]});
         srcStr = srcStr.substring(filter.index + filter[0].length);
     }
     return list;
