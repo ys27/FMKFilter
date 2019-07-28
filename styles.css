@@ -19,9 +19,15 @@ body {
 	justify-content: space-between;
 }
 
+.loader {
+	display: flex;
+	justify-content: center;
+	margin-top: 150px;
+}
+
 .categories {
 	margin-top: 15px;
-	height: 750px;
+	height: 1200px;
 	display: flex;
 	flex-direction: column;
 	flex-wrap: wrap;
