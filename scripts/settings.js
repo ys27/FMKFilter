@@ -1,20 +1,23 @@
 $(document).ready(() => {
     initStorage();
-    $('#refresh').on('click', () => {
+    $('#refresh').click(() => {
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
             chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
         });
     });
-    $('#back').on('click', () => {
+    $('#back').click(() => {
         location.href = 'popup.html';
     });
-    $("input[name='filterMode']").on('click', () => {
-        chrome.storage.sync.set({ 'filterMode': $("input[name='filterMode']:checked").val() });
+    $("input[name='filterMode']").click(() => {
+        chrome.storage.sync.set({ 'fmkFilter::filterMode': $("input[name='filterMode']:checked").val() });
+    });
+    $('#remove-keywords').click(() => {
+        chrome.storage.sync.remove('fmkFilter::keywords');
     });
 });
 
 function initStorage() {
-    chrome.storage.sync.get('filterMode', (result) => {
-        $(`input[name='filterMode'][value=${result['filterMode']}]`).prop('checked', true);
+    chrome.storage.sync.get('fmkFilter::filterMode', (result) => {
+        $(`input[name='filterMode'][value=${result['fmkFilter::filterMode']}]`).prop('checked', true);
     });
 }

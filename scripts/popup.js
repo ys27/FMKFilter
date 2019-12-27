@@ -2,42 +2,99 @@ const white = 'rgb(255, 255, 255)'
 
 $(document).ready(() => {
     getFilters();
-    $('#refresh').on('click', () => {
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
+    getKeywords();
+    $('#refresh').click(() => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            chrome.tabs.update(tabs[0].id, { url: tabs[0].url });
         });
     });
-    $('#settings').on('click', () => {
+    $('#settings').click(() => {
         location.href = 'settings.html';
     });
-})
+    $('#nav-category, #nav-keyword').click(() => {
+        $('#content-category').toggle();
+        $('#content-keyword').toggle();
+        $('#nav-category').toggleClass('active');
+        $('#nav-keyword').toggleClass('active');
+    });
+    $('#button-keyword').click(() => {
+        const keyword = $('#input-keyword').val();
+        chrome.storage.sync.get('fmkFilter::keywords', (keywords) => {
+            chrome.storage.sync.set({
+                'fmkFilter::keywords': {
+                    ...keywords['fmkFilter::keywords'],
+                    [keyword]: true
+                }
+            }, getKeywords);
+        });
+    });
+});
+
+function getKeywords() {
+    $('#input-keyword').val('');
+    chrome.storage.sync.get('fmkFilter::keywords', (keywords) => {
+        $('#keywords').empty();
+        for (const [keyword, enabled] of Object.entries(keywords['fmkFilter::keywords'])) {
+            $('#keywords').append(`
+                <li class="list-group-item d-flex justify-content-between align-items-center keyword">
+                    ${keyword}
+                    <div>
+                        <span id="toggle-keyword::${keyword}" ${enabled ? 'class="badge badge-primary badge-pill">사용</span>' : 'class="badge badge-secondary badge-pill">미사용</span>'}
+                        <span id="remove-keyword::${keyword}">삭제</span>
+                    </div>
+                </li>`
+            );
+        }
+        $('.keyword span').click((el) => {
+            const [, mode, keyword] = /^(.+)-keyword::(.+)$/.exec(el.target.id);
+            chrome.storage.sync.get('fmkFilter::keywords', (keywords) => {
+                if (mode === 'toggle') {
+                    const enabled = !keywords['fmkFilter::keywords'][keyword];
+                    chrome.storage.sync.set({
+                        'fmkFilter::keywords': {
+                            ...keywords['fmkFilter::keywords'],
+                            [keyword]: enabled
+                        }
+                    }, getKeywords)
+                } else if (mode === 'remove') {
+                    delete keywords['fmkFilter::keywords'][keyword];
+                    chrome.storage.sync.set({
+                        'fmkFilter::keywords': {
+                            ...keywords['fmkFilter::keywords']
+                        }
+                    }, getKeywords)
+                }
+            })
+        })
+    })
+}
 
 function getFilters() {
     $.ajax({
         url: 'https://www.fmkorea.com/board'
     })
-    .done((html) => {
-        const filtersListBeginRegex = /<nav class="bd bList">\s*<ul class="gn">/;
-        const filtersListEndRegex = /<\/ul>\s*<\/nav>/;
-        const filtersHtml = getSubstring(html, filtersListBeginRegex, filtersListEndRegex);
-        const filterTitleRegex = /<span class="a"><a href="\/(?!best).*">(\S*)<\/a><\/span>/;
-        const filtersList = getListOfSubstrings(filtersHtml, filterTitleRegex);
-        const filters = getFiltersJson(filtersList.slice(1));
-        initStorage(filters);
-        renderFilters(filters);
-    });
+        .done((html) => {
+            const filtersListBeginRegex = /<nav class="bd bList">\s*<ul class="gn">/;
+            const filtersListEndRegex = /<\/ul>\s*<\/nav>/;
+            const filtersHtml = getSubstring(html, filtersListBeginRegex, filtersListEndRegex);
+            const filterTitleRegex = /<span class="a"><a href="\/(?!best).*">(\S*)<\/a><\/span>/;
+            const filtersList = getListOfSubstrings(filtersHtml, filterTitleRegex);
+            const filters = getFiltersJson(filtersList.slice(1));
+            initStorage(filters);
+            renderFilters(filters);
+        });
 }
 
 function initStorage(filters) {
-    chrome.storage.sync.get('filterMode', (result) => {
-        if (result['filterMode'] === undefined) {
-            chrome.storage.sync.set({ 'filterMode': 'blur' });
+    chrome.storage.sync.get('fmkFilter::filterMode', (result) => {
+        if (result['fmkFilter::filterMode'] === undefined) {
+            chrome.storage.sync.set({ 'fmkFilter::filterMode': 'blur' });
         }
     });
-    for (const [index, [mainCategory, subLevel]] of Object.entries(Object.entries(filters))) {
+    for (const subLevel of Object.values(Object.values(filters))) {
         if (isArray(subLevel)) {
             for (categoryObj of subLevel) {
-                for (const [, [category, categoryId]] of Object.entries(Object.entries(categoryObj))) {
+                for (const categoryId of Object.values(Object.values(categoryObj))) {
                     const key = `fmkFilter::${categoryId}`
                     chrome.storage.sync.get([key], (result) => {
                         if (result[key] === undefined) {
@@ -48,9 +105,9 @@ function initStorage(filters) {
             }
         }
         else if (isObject(subLevel)) {
-            for (const [subIndex, [subCategory, categories]] of Object.entries(Object.entries(subLevel))) {
+            for (const categories of Object.values(Object.values(subLevel))) {
                 for (categoryObj of categories) {
-                    for (const [, [category, categoryId]] of Object.entries(Object.entries(categoryObj))) {
+                    for (const categoryId of Object.values(Object.values(categoryObj))) {
                         const key = `fmkFilter::${categoryId}`
                         chrome.storage.sync.get([key], (result) => {
                             if (result[key] === undefined) {
@@ -87,7 +144,7 @@ function getListOfFilters(srcStr) {
     const filterRegex = /<li>\s*<a href="\/(\S*)">(.*\S*.*)<\/a>/;
     while (filterRegex.test(srcStr)) {
         const filter = filterRegex.exec(srcStr);
-        list.push({[filter[2]]: filter[1]});
+        list.push({ [filter[2]]: filter[1] });
         srcStr = srcStr.substring(filter.index + filter[0].length);
     }
     return list;
@@ -100,7 +157,7 @@ function getListOfSubstrings(srcStr, iterativeRegex) {
         const titles = iterativeRegex.exec(normalFiltersStr);
         const title = titles[1] ? titles[1] : titles[2];
         const html = getSubstring(normalFiltersStr, iterativeRegex, iterativeRegex);
-        list.push({title, html});
+        list.push({ title, html });
         normalFiltersStr = normalFiltersStr.substring(titles.index + titles[0].length);
     }
     return list;
@@ -124,11 +181,11 @@ function renderFilters(filters) {
         $('#categories').append(`<div id="${index}" class="mainCategory"><span class="filter">${mainCategory}</span></div>`);
         if (isArray(subLevel)) {
             for (categoryObj of subLevel) {
-                for (const [, [category, categoryId]] of Object.entries(Object.entries(categoryObj))) {
+                for (const [category, categoryId] of Object.values(Object.entries(categoryObj))) {
                     $(`#${index}`).append(`<div id="${categoryId}" class="category"><span class="filter">${category}</span></div>`);
                     const key = `fmkFilter::${categoryId}`
                     chrome.storage.sync.get([key], (result) => {
-                        result[key] === 'false' ? $(`#${categoryId}`).addClass('disabled') : $(`#${categoryId}`).addClass('enabled');
+                        result[key] ? $(`#${categoryId}`).addClass('enabled') : $(`#${categoryId}`).addClass('disabled');
                     });
                 }
             }
@@ -137,18 +194,18 @@ function renderFilters(filters) {
             for (const [subIndex, [subCategory, categories]] of Object.entries(Object.entries(subLevel))) {
                 $(`#${index}`).append(`<div id="${index}${subIndex}" class="subCategory"><span class="filter">${subCategory}</span></div>`);
                 for (categoryObj of categories) {
-                    for (const [, [category, categoryId]] of Object.entries(Object.entries(categoryObj))) {
+                    for (const [category, categoryId] of Object.values(Object.entries(categoryObj))) {
                         $(`#${index}${subIndex}`).append(`<div id="${categoryId}" class="category"><span class="filter">${category}</span></div>`);
                         const key = `fmkFilter::${categoryId}`
                         chrome.storage.sync.get([key], (result) => {
-                            result[key] === 'false' ? $(`#${categoryId}`).addClass('disabled') : $(`#${categoryId}`).addClass('enabled');
+                            result[key] ? $(`#${categoryId}`).addClass('enabled') : $(`#${categoryId}`).addClass('disabled');
                         });
                     }
                 }
             }
         }
     }
-    $('span.filter').on('click', function() {
+    $('span.filter').click(function () {
         toggleView($(this).parent());
     })
 }
@@ -157,9 +214,9 @@ function toggleView(category) {
     if (category.hasClass('mainCategory') || category.hasClass('subCategory')) {
         category.hasClass('disabled') ?
             category.find('div').addClass('enabled').removeClass('disabled') :
-                category.find('div').addClass('disabled').removeClass('enabled');
+            category.find('div').addClass('disabled').removeClass('enabled');
 
-        category.find('div').each(function() {
+        category.find('div').each(function () {
             category.hasClass('disabled') ?
                 setFilterTrue($(this).attr('id')) : setFilterFalse($(this).attr('id'));
         })
@@ -169,19 +226,17 @@ function toggleView(category) {
 }
 
 function setFilterTrue(id) {
-    const key = `fmkFilter::${id}`;
-    chrome.storage.sync.set({ [key]: 'true' });
+    chrome.storage.sync.set({ [`fmkFilter::${id}`]: true });
 }
 
 function setFilterFalse(id) {
-    const key = `fmkFilter::${id}`;
-    chrome.storage.sync.set({ [key]: 'false' });
+    chrome.storage.sync.set({ [`fmkFilter::${id}`]: false });
 }
 
-function isObject (value) {
+function isObject(value) {
     return value && typeof value === 'object' && value.constructor === Object;
 }
 
-function isArray (value) {
+function isArray(value) {
     return value && typeof value === 'object' && value.constructor === Array;
 }

@@ -1,18 +1,30 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-		<script src="scripts/jquery-3.3.1.min.js"></script>
-		<script type="text/javascript" src="scripts/popup.js"></script>
-		<link rel="stylesheet" href="styles.css">
-	</head>
-	<body>
-		<div>
-			<div class="sidebar">
-				<span id="refresh">텝 새로고침</span>
-				<span id="settings">설정</span>
-			</div>
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+		integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<script src="scripts/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="scripts/popup.js"></script>
+	<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+	<div>
+		<div class="sidebar">
+			<span id="refresh">현재 탭 새로고침</span>
+			<span id="settings">설정</span>
+		</div>
+		<ul class="nav nav-tabs nav-fill">
+			<li class="nav-item">
+				<a id="nav-category" class="nav-link active" href="#">갤러리 필터링</a>
+			</li>
+			<li class="nav-item">
+				<a id="nav-keyword" class="nav-link" href="#">키워드 필터링</a>
+			</li>
+		</ul>
+		<div id="content-category">
 			<div class="header">
 				<h3>펨코 포텐 필터</h3>
 				<div>포텐에서 보기싫은 갤러리 필터하기</div>
@@ -21,5 +33,21 @@
 			<div id="loader" class="loader">갤러리 목록 불러오기중...</div>
 			<div id="categories" class="categories"></div>
 		</div>
-	</body>
+		<div id="content-keyword" style="display: none">
+			<div class="header">
+				<h3>펨코 포텐 필터</h3>
+				<div>키워드로 글 필터하기</div>
+			</div>
+			<div class="inputs">
+				<input type="text" id="input-keyword" />
+				<button type="button" id="button-keyword" class="btn btn-success">키워드 추가</buttontype="button"
+						class="btn btn-primary">
+			</div>
+			<div class="keywords">
+				<ul id="keywords" class="list-group"></ul>
+			</div>
+		</div>
+	</div>
+</body>
+
 </html>

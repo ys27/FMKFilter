@@ -12,6 +12,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	margin-top: 10px;
 }
 
 .sidebar {
@@ -27,7 +28,7 @@ body {
 
 .categories {
 	margin-top: 15px;
-	height: 1200px;
+	height: 1250px;
 	display: flex;
 	flex-direction: column;
 	flex-wrap: wrap;
@@ -70,4 +71,14 @@ span {
 
 input[type='radio'] {
     margin-right: 10px;
+}
+
+.nav-link, .nav-link:hover {
+	color: white;
+	margin-top: 10px;
+}
+
+.keywords {
+	margin-top: 15px;
+	color: #4E78D0;
 }
