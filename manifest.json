@@ -5,6 +5,7 @@
 	"version": "1.1.5",
 	"description": "Filters posts categorically from the main view.",
 	"icons": {
+		"16": "imgs/logo16.png",
 		"128": "imgs/logo128.png"
 	},
 	"browser_action": {
@@ -15,11 +16,25 @@
 		"tabs",
 		"storage",
 		"http://*/*",
-   		"https://*/*"
+		"https://*/*",
+		"contextMenus"
 	],
-	"content_scripts": [{
-		"js": ["scripts/jquery-3.3.1.min.js", "scripts/contentScript.js"],
-		"matches": ["https://www.fmkorea.com/*"],
-		"run_at": "document_end"
-	}]
+	"background": {
+		"scripts": [
+			"scripts/contextMenu.js"
+		],
+		"persistent": false
+	},
+	"content_scripts": [
+		{
+			"js": [
+				"scripts/jquery-3.3.1.min.js",
+				"scripts/contentScript.js"
+			],
+			"matches": [
+				"https://www.fmkorea.com/*"
+			],
+			"run_at": "document_end"
+		}
+	]
 }
