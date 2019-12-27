@@ -12,6 +12,22 @@ $(document).ready(() => {
     });
 })
 
+function getFilters() {
+    $.ajax({
+        url: 'https://www.fmkorea.com/board'
+    })
+    .done((html) => {
+        const filtersListBeginRegex = /<nav class="bd bList">\s*<ul class="gn">/;
+        const filtersListEndRegex = /<\/ul>\s*<\/nav>/;
+        const filtersHtml = getSubstring(html, filtersListBeginRegex, filtersListEndRegex);
+        const filterTitleRegex = /<span class="a"><a href="\/(?!best).*">(\S*)<\/a><\/span>/;
+        const filtersList = getListOfSubstrings(filtersHtml, filterTitleRegex);
+        const filters = getFiltersJson(filtersList.slice(1));
+        initStorage(filters);
+        renderFilters(filters);
+    });
+}
+
 function initStorage(filters) {
     chrome.storage.sync.get('filterMode', (result) => {
         if (result['filterMode'] === undefined) {
@@ -46,22 +62,6 @@ function initStorage(filters) {
             }
         }
     }
-}
-
-function getFilters() {
-    $.ajax({
-        url: 'https://www.fmkorea.com/board'
-    })
-    .done((html) => {
-        const filtersListBeginRegex = /<nav class="bd bList">\s*<ul class="gn">/;
-        const filtersListEndRegex = /<\/ul>\s*<\/nav>/;
-        const filtersHtml = getSubstring(html, filtersListBeginRegex, filtersListEndRegex);
-        const filterTitleRegex = /<span class="a"><a href="\/(?!best).*">(\S*)<\/a><\/span>/;
-        const filtersList = getListOfSubstrings(filtersHtml, filterTitleRegex);
-        const filters = getFiltersJson(filtersList);
-        initStorage(filters);
-        renderFilters(filters);
-    });
 }
 
 function getFiltersJson(filtersList) {
