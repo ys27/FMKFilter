@@ -16,45 +16,30 @@ $('.fm_best_widget').find('li').each(function () {
     });
 });
 
-$('ul').find('li.li').each(function () {
-    const title = $(this).find('h3.title').children('a').text();
-    const key = `fmkFilter::keywords`;
-    chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (result) => {
-        for ([keyword, enabled] of Object.entries(result[key])) {
-            if (enabled && title.includes(keyword)) {
-                if (result['fmkFilter::filterMode'] === 'blur') {
-                    blur($(this));
-                    $(this).find('.title').find('a')
-                        .mouseenter(() => { unblur($(this)) })
-                        .mouseleave(() => { blur($(this)) });
-                }
-                else if (result['fmkFilter::filterMode'] === 'hide') {
-                    $(this).hide();
-                }
-            }
-        }
-    });
-});
+findAnFilterKeyword('ul', 'li.li', 'h3');
+findAnFilterKeyword('tbody', 'tr', 'td');
 
-$('tbody').find('tr').each(function () {
-    const title = $(this).find('td.title').children('a').text();
-    const key = `fmkFilter::keywords`;
-    chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (result) => {
-        for ([keyword, enabled] of Object.entries(result[key])) {
-            if (enabled && title.includes(keyword)) {
-                if (result['fmkFilter::filterMode'] === 'blur') {
-                    blur($(this));
-                    $(this).find('.title').find('a')
-                        .mouseenter(() => { unblur($(this)) })
-                        .mouseleave(() => { blur($(this)) });
-                }
-                else if (result['fmkFilter::filterMode'] === 'hide') {
-                    $(this).hide();
+function findAnFilterKeyword(listElemType, postElemType, titleElemType) {
+    $(listElemType).find(postElemType).each(function () {
+        const title = $(this).find(`${titleElemType}.title`).children('a').text();
+        const key = `fmkFilter::keywords`;
+        chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (result) => {
+            for ([keyword, enabled] of Object.entries(result[key])) {
+                if (enabled && title.includes(keyword)) {
+                    if (result['fmkFilter::filterMode'] === 'blur') {
+                        blur($(this));
+                        $(this).find('.title').find('a')
+                            .mouseenter(() => { unblur($(this)) })
+                            .mouseleave(() => { blur($(this)) });
+                    }
+                    else if (result['fmkFilter::filterMode'] === 'hide') {
+                        $(this).hide();
+                    }
                 }
             }
-        }
-    });
-});
+        });
+    })
+}
 
 function blur(elem) {
     elem.css('-webkit-filter', 'blur(2px)');
