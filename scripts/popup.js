@@ -1,6 +1,7 @@
 const white = 'rgb(255, 255, 255)'
 
 $(document).ready(() => {
+    initStorage();
     getFilters();
     getKeywords();
     $('#refresh').click(() => {
@@ -77,55 +78,23 @@ function getFilters() {
     $.ajax({
         url: 'https://www.fmkorea.com/board'
     })
-        .done(async (html) => {
+        .done((html) => {
             const filtersListBeginRegex = /<nav class="bd bList">\s*<ul class="gn">/;
             const filtersListEndRegex = /<\/ul>\s*<\/nav>/;
             const filtersHtml = getSubstring(html, filtersListBeginRegex, filtersListEndRegex);
             const filterTitleRegex = /<span class="a"><a href="\/(?!best).*">(\S*)<\/a><\/span>/;
             const filtersList = getListOfSubstrings(filtersHtml, filterTitleRegex);
             const filters = getFiltersJson(filtersList.slice(1));
-            await initStorage(filters);
             renderFilters(filters);
         });
 }
 
-async function initStorage(filters) {
+function initStorage() {
     chrome.storage.sync.get('fmkFilter::filterMode', (result) => {
         if (!result['fmkFilter::filterMode']) {
             chrome.storage.sync.set({ 'fmkFilter::filterMode': 'blur' });
         }
     });
-    for (const subLevel of Object.values(Object.values(filters))) {
-        if (isArray(subLevel)) {
-            for (categoryObj of subLevel) {
-                for (const categoryId of Object.values(Object.values(categoryObj))) {
-                    const key = `fmkFilter::${categoryId}`
-                    chrome.storage.sync.get([key], (result) => {
-                        if (!result[key]) {
-                            console.log('setting')
-                            setFilterTrue(categoryId);
-                        }
-                    });
-                }
-            }
-        }
-        else if (isObject(subLevel)) {
-            for (const categories of Object.values(Object.values(subLevel))) {
-                for (categoryObj of categories) {
-                    for (const categoryId of Object.values(Object.values(categoryObj))) {
-                        const key = `fmkFilter::${categoryId}`
-                        chrome.storage.sync.get([key], (result) => {
-                            if (!result[key]) {
-                                console.log('setting')
-                                setFilterTrue(categoryId);
-                            }
-                        });
-                    }
-                }
-            }
-        }
-    }
-    return Promise.resolve(0);
 }
 
 function getFiltersJson(filtersList) {
@@ -183,33 +152,28 @@ function getSubstring(srcStr, startRegex, endRegex) {
 }
 
 function renderFilters(filters) {
-    console.log('start render')
     $('#loader').hide();
+    const renderCategories = (categories, index, subIndex = '') => {
+        for (categoryObj of categories) {
+            for (const [category, categoryId] of Object.values(Object.entries(categoryObj))) {
+                $(`#${index}${subIndex}`).append(`<div id="${categoryId}" class="category"><span class="filter">${category}</span></div>`);
+                const key = `fmkFilter::${categoryId}`
+                chrome.storage.sync.get([key], (result) => {
+                    result[key] !== false ? $(`#${categoryId}`).addClass('enabled') : $(`#${categoryId}`).addClass('disabled');
+                });
+            }
+        }
+    }
+
     for (const [index, [mainCategory, subLevel]] of Object.entries(Object.entries(filters))) {
         $('#categories').append(`<div id="${index}" class="mainCategory"><span class="filter">${mainCategory}</span></div>`);
         if (isArray(subLevel)) {
-            for (categoryObj of subLevel) {
-                for (const [category, categoryId] of Object.values(Object.entries(categoryObj))) {
-                    $(`#${index}`).append(`<div id="${categoryId}" class="category"><span class="filter">${category}</span></div>`);
-                    const key = `fmkFilter::${categoryId}`
-                    chrome.storage.sync.get([key], (result) => {
-                        result[key] ? $(`#${categoryId}`).addClass('enabled') : $(`#${categoryId}`).addClass('disabled');
-                    });
-                }
-            }
+            renderCategories(subLevel, index);
         }
         else if (isObject(subLevel)) {
             for (const [subIndex, [subCategory, categories]] of Object.entries(Object.entries(subLevel))) {
                 $(`#${index}`).append(`<div id="${index}${subIndex}" class="subCategory"><span class="filter">${subCategory}</span></div>`);
-                for (categoryObj of categories) {
-                    for (const [category, categoryId] of Object.values(Object.entries(categoryObj))) {
-                        $(`#${index}${subIndex}`).append(`<div id="${categoryId}" class="category"><span class="filter">${category}</span></div>`);
-                        const key = `fmkFilter::${categoryId}`
-                        chrome.storage.sync.get([key], (result) => {
-                            result[key] ? $(`#${categoryId}`).addClass('enabled') : $(`#${categoryId}`).addClass('disabled');
-                        });
-                    }
-                }
+                renderCategories(categories, index, subIndex);
             }
         }
     }
