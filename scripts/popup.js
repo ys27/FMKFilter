@@ -19,14 +19,16 @@ $(document).ready(() => {
     });
     $('#button-keyword').click(() => {
         const keyword = $('#input-keyword').val();
-        chrome.storage.sync.get('fmkFilter::keywords', (keywords) => {
-            chrome.storage.sync.set({
-                'fmkFilter::keywords': {
-                    ...keywords['fmkFilter::keywords'],
-                    [keyword]: true
-                }
-            }, getKeywords);
-        });
+        if (keyword.length) {
+            chrome.storage.sync.get('fmkFilter::keywords', (keywords) => {
+                chrome.storage.sync.set({
+                    'fmkFilter::keywords': {
+                        ...keywords['fmkFilter::keywords'],
+                        [keyword]: true
+                    }
+                }, getKeywords);
+            });
+        }
     });
 });
 
@@ -34,38 +36,40 @@ function getKeywords() {
     $('#input-keyword').val('');
     chrome.storage.sync.get('fmkFilter::keywords', (keywords) => {
         $('#keywords').empty();
-        for (const [keyword, enabled] of Object.entries(keywords['fmkFilter::keywords'])) {
-            $('#keywords').append(`
-                <li class="list-group-item d-flex justify-content-between align-items-center keyword">
-                    ${keyword}
-                    <div>
-                        <span id="toggle-keyword::${keyword}" ${enabled ? 'class="badge badge-primary badge-pill">사용</span>' : 'class="badge badge-secondary badge-pill">미사용</span>'}
-                        <span id="remove-keyword::${keyword}">삭제</span>
-                    </div>
-                </li>`
-            );
-        }
-        $('.keyword span').click((el) => {
-            const [, mode, keyword] = /^(.+)-keyword::(.+)$/.exec(el.target.id);
-            chrome.storage.sync.get('fmkFilter::keywords', (keywords) => {
-                if (mode === 'toggle') {
-                    const enabled = !keywords['fmkFilter::keywords'][keyword];
-                    chrome.storage.sync.set({
-                        'fmkFilter::keywords': {
-                            ...keywords['fmkFilter::keywords'],
-                            [keyword]: enabled
-                        }
-                    }, getKeywords)
-                } else if (mode === 'remove') {
-                    delete keywords['fmkFilter::keywords'][keyword];
-                    chrome.storage.sync.set({
-                        'fmkFilter::keywords': {
-                            ...keywords['fmkFilter::keywords']
-                        }
-                    }, getKeywords)
-                }
+        if (keywords['fmkFilter::keywords']) {
+            for (const [keyword, enabled] of Object.entries(keywords['fmkFilter::keywords'])) {
+                $('#keywords').append(`
+                    <li class="list-group-item d-flex justify-content-between align-items-center keyword">
+                        ${keyword}
+                        <div>
+                            <span id="toggle-keyword::${keyword}" ${enabled ? 'class="badge badge-primary badge-pill">사용</span>' : 'class="badge badge-secondary badge-pill">미사용</span>'}
+                            <span id="remove-keyword::${keyword}">삭제</span>
+                        </div>
+                    </li>`
+                );
+            }
+            $('.keyword span').click((el) => {
+                const [, mode, keyword] = /^(.+)-keyword::(.+)$/.exec(el.target.id);
+                chrome.storage.sync.get('fmkFilter::keywords', (keywords) => {
+                    if (mode === 'toggle') {
+                        const enabled = !keywords['fmkFilter::keywords'][keyword];
+                        chrome.storage.sync.set({
+                            'fmkFilter::keywords': {
+                                ...keywords['fmkFilter::keywords'],
+                                [keyword]: enabled
+                            }
+                        }, getKeywords)
+                    } else if (mode === 'remove') {
+                        delete keywords['fmkFilter::keywords'][keyword];
+                        chrome.storage.sync.set({
+                            'fmkFilter::keywords': {
+                                ...keywords['fmkFilter::keywords']
+                            }
+                        }, getKeywords)
+                    }
+                })
             })
-        })
+        }
     })
 }
 
@@ -73,21 +77,21 @@ function getFilters() {
     $.ajax({
         url: 'https://www.fmkorea.com/board'
     })
-        .done((html) => {
+        .done(async (html) => {
             const filtersListBeginRegex = /<nav class="bd bList">\s*<ul class="gn">/;
             const filtersListEndRegex = /<\/ul>\s*<\/nav>/;
             const filtersHtml = getSubstring(html, filtersListBeginRegex, filtersListEndRegex);
             const filterTitleRegex = /<span class="a"><a href="\/(?!best).*">(\S*)<\/a><\/span>/;
             const filtersList = getListOfSubstrings(filtersHtml, filterTitleRegex);
             const filters = getFiltersJson(filtersList.slice(1));
-            initStorage(filters);
+            await initStorage(filters);
             renderFilters(filters);
         });
 }
 
-function initStorage(filters) {
+async function initStorage(filters) {
     chrome.storage.sync.get('fmkFilter::filterMode', (result) => {
-        if (result['fmkFilter::filterMode'] === undefined) {
+        if (!result['fmkFilter::filterMode']) {
             chrome.storage.sync.set({ 'fmkFilter::filterMode': 'blur' });
         }
     });
@@ -97,7 +101,8 @@ function initStorage(filters) {
                 for (const categoryId of Object.values(Object.values(categoryObj))) {
                     const key = `fmkFilter::${categoryId}`
                     chrome.storage.sync.get([key], (result) => {
-                        if (result[key] === undefined) {
+                        if (!result[key]) {
+                            console.log('setting')
                             setFilterTrue(categoryId);
                         }
                     });
@@ -110,7 +115,8 @@ function initStorage(filters) {
                     for (const categoryId of Object.values(Object.values(categoryObj))) {
                         const key = `fmkFilter::${categoryId}`
                         chrome.storage.sync.get([key], (result) => {
-                            if (result[key] === undefined) {
+                            if (!result[key]) {
+                                console.log('setting')
                                 setFilterTrue(categoryId);
                             }
                         });
@@ -119,6 +125,7 @@ function initStorage(filters) {
             }
         }
     }
+    return Promise.resolve(0);
 }
 
 function getFiltersJson(filtersList) {
@@ -176,6 +183,7 @@ function getSubstring(srcStr, startRegex, endRegex) {
 }
 
 function renderFilters(filters) {
+    console.log('start render')
     $('#loader').hide();
     for (const [index, [mainCategory, subLevel]] of Object.entries(Object.entries(filters))) {
         $('#categories').append(`<div id="${index}" class="mainCategory"><span class="filter">${mainCategory}</span></div>`);
