@@ -61,6 +61,11 @@ span {
 	display: flex;
 	flex-direction: column;
 	margin-top: 20px;
+	text-align: center;
+}
+
+label, input {
+	cursor: pointer;
 }
 
 .inputs {
@@ -81,4 +86,8 @@ input[type='radio'] {
 .keywords {
 	margin-top: 15px;
 	color: #4E78D0;
+}
+
+.version {
+	margin-top: 20px;
 }

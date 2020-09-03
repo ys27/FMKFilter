@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "FMKFilter - 에펨코리아 포텐글 필터링 확장프로그램",
   "short_name": "FMKFilter",
-  "version": "1.3.0",
+  "version": "1.5.0",
   "description": "Filters posts categorically from the main view.",
   "icons": {
     "128": "imgs/logo128.png"

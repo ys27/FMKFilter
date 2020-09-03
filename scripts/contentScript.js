@@ -1,9 +1,20 @@
-if (shouldFilterByPath(window.location.search)) {
+$(document).ready(() => {
+    shouldFilterByPath(window.location.search) && findAndFilterCategories();
+    chrome.storage.sync.get('fmkFilter::hideToday', (result) => {
+        if (result['fmkFilter::hideToday']) {
+            hideToday();
+        }
+    })
+    findAndFilterKeyword('ul', 'li.li', 'h3');
+    findAndFilterKeyword('tbody', 'tr', 'td');
+})
+
+function findAndFilterCategories() {
     $('.fm_best_widget').find('li').each(function () {
         const href = $(this).find('.category').children('a').attr('href');
         const key = `fmkFilter::${href}`;
         chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (result) => {
-            if (!result[key]) {
+            if (result[key] === false) {
                 if (result['fmkFilter::filterMode'] === 'blur') {
                     blur($(this));
                     $(this).find('.title').find('a')
@@ -16,12 +27,7 @@ if (shouldFilterByPath(window.location.search)) {
             }
         });
     });
-
-    findAndFilterKeyword('ul', 'li.li', 'h3');
-    findAndFilterKeyword('tbody', 'tr', 'td');
 }
-
-
 
 function findAndFilterKeyword(listElemType, postElemType, titleElemType) {
     $(listElemType).find(postElemType).each(function () {
@@ -45,6 +51,10 @@ function findAndFilterKeyword(listElemType, postElemType, titleElemType) {
             }
         });
     })
+}
+
+function hideToday() {
+    $('.content_widget').hide();
 }
 
 function blur(elem) {
