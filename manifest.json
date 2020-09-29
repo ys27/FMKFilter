@@ -15,8 +15,9 @@
   "content_scripts": [
     {
       "js": ["scripts/jquery-3.3.1.min.js", "scripts/contentScript.js"],
+      "css": ["hideDefault.css"],
       "matches": ["https://*.fmkorea.com/*"],
-      "run_at": "document_end"
+      "run_at": "document_start"
     }
   ]
 }

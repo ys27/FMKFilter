@@ -7,6 +7,7 @@ $(document).ready(() => {
     })
     findAndFilterKeyword('ul', 'li.li', 'h3');
     findAndFilterKeyword('tbody', 'tr', 'td');
+    setTimeout(() => $('body').show(), 0);
 })
 
 function findAndFilterCategories() {
@@ -40,8 +41,8 @@ function findAndFilterKeyword(listElemType, postElemType, titleElemType) {
                         if (result['fmkFilter::filterMode'] === 'blur') {
                             blur($(this));
                             $(this).find('.title').find('a')
-                                .mouseenter(() => { unblur($(this)) })
-                                .mouseleave(() => { blur($(this)) });
+                                .mouseenter(() => unblur($(this)))
+                                .mouseleave(() => blur($(this)));
                         }
                         else if (result['fmkFilter::filterMode'] === 'hide') {
                             $(this).hide();
