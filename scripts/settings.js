@@ -22,6 +22,8 @@ $(document).ready(() => {
 function initRender() {
     chrome.storage.sync.get(['fmkFilter::filterMode', 'fmkFilter::hideToday'], (result) => {
         $(`input[name='filterMode'][value=${result['fmkFilter::filterMode']}]`).prop('checked', true);
-        $('#hideTodaySwitch').prop('checked', result['fmkFilter::hideToday'])
+        $('#hideTodaySwitch').prop('checked', result['fmkFilter::hideToday']);
     });
+    const manifest = chrome.runtime.getManifest();
+    $('#version').text(`버전: v${manifest.version}`);
 }
