@@ -1,13 +1,18 @@
 $(document).ready(() => {
-    shouldFilterByPath(window.location.search) && findAndFilterCategories();
+    shouldFilterByPath() && findAndFilterCategories();
     chrome.storage.sync.get('fmkFilter::hideToday', (result) => {
         if (result['fmkFilter::hideToday']) {
             hideToday();
         }
-    })
+    });
     findAndFilterKeyword('ul', 'li.li', 'h3');
     findAndFilterKeyword('tbody', 'tr', 'td');
-    setTimeout(() => $('body').show(), 0);
+    chrome.storage.sync.get('fmkFilter::hidePolitics', (result) => {
+        if (result['fmkFilter::hidePolitics']) {
+            hidePolitics();
+        }
+    });
+    setTimeout(() => $('body').css('visibility', 'visible'), 0);
 })
 
 function findAndFilterCategories() {
@@ -58,6 +63,14 @@ function hideToday() {
     $('.content_widget').hide();
 }
 
+function hidePolitics() {
+    if (window.location.pathname === '/') {
+        const politicsBanner = $("a:contains('정치 게시판 인기글')").parents("div.tl_srch.clear");
+        politicsBanner.next().hide();
+        politicsBanner.hide();
+    }
+}
+
 function blur(elem) {
     elem.css('-webkit-filter', 'blur(3px)');
     elem.css('-moz-filter', 'blur(3px)');
@@ -74,6 +87,7 @@ function unblur(elem) {
     elem.css('filter', 'blur(0px)');
 }
 
-function shouldFilterByPath(search) {
-    return search === '' || search.startsWith('?mid=best')
+function shouldFilterByPath() {
+    const search = window.location.search;
+    return search === '' || search.startsWith('?mid=best');
 }
