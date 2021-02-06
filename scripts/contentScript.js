@@ -1,16 +1,11 @@
 $(document).ready(() => {
     shouldFilterByPath() && findAndFilterCategories();
-    chrome.storage.sync.get('fmkFilter::hideToday', (result) => {
-        if (result['fmkFilter::hideToday']) {
-            hideToday();
-        }
-    });
     findAndFilterKeyword('ul', 'li.li', 'h3');
     findAndFilterKeyword('tbody', 'tr', 'td');
-    chrome.storage.sync.get('fmkFilter::hidePolitics', (result) => {
-        if (result['fmkFilter::hidePolitics']) {
-            hidePolitics();
-        }
+    chrome.storage.sync.get(['fmkFilter::hideToday', 'fmkFilter::hidePolitics', 'fmkFilter::hideHotPosts'], (result) => {
+        result['fmkFilter::hideToday'] && hideToday();
+        result['fmkFilter::hidePolitics'] && hidePolitics();
+        result['fmkFilter::hideHotPosts'] && hideHotPosts();
     });
     setTimeout(() => $('body').css('visibility', 'visible'), 0);
 })
@@ -21,15 +16,7 @@ function findAndFilterCategories() {
         const key = `fmkFilter::${href}`;
         chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (result) => {
             if (result[key] === false) {
-                if (result['fmkFilter::filterMode'] === 'blur') {
-                    blur($(this));
-                    $(this).find('.title').find('a')
-                        .mouseenter(() => { unblur($(this)) })
-                        .mouseleave(() => { blur($(this)) });
-                }
-                else if (result['fmkFilter::filterMode'] === 'hide') {
-                    $(this).hide();
-                }
+                hide(this, result);
             }
         });
     });
@@ -43,15 +30,7 @@ function findAndFilterKeyword(listElemType, postElemType, titleElemType) {
             if (result[key]) {
                 for ([keyword, enabled] of Object.entries(result[key])) {
                     if (enabled && title.includes(keyword)) {
-                        if (result['fmkFilter::filterMode'] === 'blur') {
-                            blur($(this));
-                            $(this).find('.title').find('a')
-                                .mouseenter(() => unblur($(this)))
-                                .mouseleave(() => blur($(this)));
-                        }
-                        else if (result['fmkFilter::filterMode'] === 'hide') {
-                            $(this).hide();
-                        }
+                        hide(this, result);
                     }
                 }
             }
@@ -68,6 +47,23 @@ function hidePolitics() {
         const politicsBanner = $("a:contains('정치 게시판 인기글')").parents("div.tl_srch.clear");
         politicsBanner.next().hide();
         politicsBanner.hide();
+    }
+}
+
+function hideHotPosts() {
+    $('.fm_best_widget').find('li.li_best2_pop1').each(function () {
+        $(this).hide();
+    });
+}
+
+function hide(elem, storage) {
+    if (storage['fmkFilter::filterMode'] === 'blur') {
+        blur($(elem));
+        $(elem).find('.title').find('a')
+            .mouseenter(() => unblur($(elem)))
+            .mouseleave(() => blur($(elem)));
+    } else if (storage['fmkFilter::filterMode'] === 'hide') {
+        $(elem).hide();
     }
 }
 

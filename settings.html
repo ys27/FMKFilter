@@ -1,71 +1,60 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
-    />
-    <script src="scripts/jquery-3.3.1.min.js"></script>
-    <script type="text/javascript" src="scripts/settings.js"></script>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
 
-  <body>
-    <div class="sidebar">
-      <span id="refresh">현재 탭 새로고침</span>
-      <span id="back">뒤로</span>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
+  <script src="scripts/jquery-3.3.1.min.js"></script>
+  <script type="text/javascript" src="scripts/settings.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="sidebar">
+    <span id="refresh">현재 탭 새로고침</span>
+    <span id="back">뒤로</span>
+  </div>
+  <div class="header">
+    <h3>환경설정</h3>
+  </div>
+  <hr />
+  <div class="setting">
+    보고싶지 않은 글 가리기:
+    <div class="inputs">
+      <label><input type="radio" name="filterMode" value="blur" />모자이크</label>
+      <label><input type="radio" name="filterMode" value="hide" />숨기기</label>
     </div>
-    <div class="header">
-      <h3>환경설정</h3>
+  </div>
+  <hr />
+  <div class="setting">
+    <div class="custom-control custom-switch">
+      <input type="checkbox" class="custom-control-input" id="hideTodaySwitch" />
+      <label class="custom-control-label" for="hideTodaySwitch">오늘의 포텐/예비 포텐글 숨기기</label>
     </div>
-    <hr />
-    <div class="setting">
-      보고싶지 않은 글 가리기:
-      <div class="inputs">
-        <label
-          ><input type="radio" name="filterMode" value="blur" />모자이크</label
-        >
-        <label
-          ><input type="radio" name="filterMode" value="hide" />숨기기</label
-        >
-      </div>
+  </div>
+  <hr />
+  <div class="setting">
+    <div class="custom-control custom-switch">
+      <input type="checkbox" class="custom-control-input" id="hidePoliticsSwitch" />
+      <label class="custom-control-label" for="hidePoliticsSwitch">포텐 메인 페이지 정치글 숨기기</label>
     </div>
-    <hr />
-    <div class="setting">
-      <div class="custom-control custom-switch">
-        <input
-          type="checkbox"
-          class="custom-control-input"
-          id="hideTodaySwitch"
-        />
-        <label class="custom-control-label" for="hideTodaySwitch"
-          >오늘의 포텐/예비 포텐글 숨기기</label
-        >
-      </div>
+  </div>
+  <hr />
+  <div class="setting">
+    <div class="custom-control custom-switch">
+      <input type="checkbox" class="custom-control-input" id="hideHotPostsSwitch" />
+      <label class="custom-control-label" for="hideHotPostsSwitch">화제글 숨기기</label>
     </div>
-    <hr />
-    <div class="setting">
-      <div class="custom-control custom-switch">
-        <input
-          type="checkbox"
-          class="custom-control-input"
-          id="hidePoliticsSwitch"
-        />
-        <label class="custom-control-label" for="hidePoliticsSwitch"
-          >포텐 메인 페이지 정치글 숨기기</label
-        >
-      </div>
-    </div>
-    <hr />
-    <div class="setting">
-      <button type="button" id="remove-keywords" class="btn btn-warning">
-        키워드 모두 지우기
-      </button>
-    </div>
-    <hr />
-    <div id="version" class="version"></div>
-  </body>
+  </div>
+  <hr />
+  <div class="setting">
+    <button type="button" id="remove-keywords" class="btn btn-warning">
+      키워드 모두 지우기
+    </button>
+  </div>
+  <hr />
+  <div id="version" class="version"></div>
+</body>
+
 </html>
