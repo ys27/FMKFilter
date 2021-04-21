@@ -7,7 +7,7 @@ $(document).ready(() => {
         result['fmkFilter::hidePolitics'] && hidePolitics();
         result['fmkFilter::hideHotPosts'] && hideHotPosts();
     });
-    setTimeout(() => $('body').css('visibility', 'visible'), 0);
+    setTimeout(() => $('body').css('display', 'block'), 0);
 })
 
 function findAndFilterCategories() {
