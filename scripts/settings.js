@@ -36,6 +36,11 @@ $(document).ready(() => {
       "fmkFilter::hideHotPosts": !!$("#hideHotPostsSwitch:checked").val(),
     });
   });
+  $("#openLinksInNewTabSwitch").click(() => {
+    chrome.storage.sync.set({
+      "fmkFilter::openLinksInNewTab": !!$("#openLinksInNewTabSwitch:checked").val(),
+    });
+  });
   $("#remove-keywords").click(() => {
     chrome.storage.sync.remove("fmkFilter::keywords");
   });
@@ -48,8 +53,10 @@ function initRender() {
       "fmkFilter::hideToday",
       "fmkFilter::hidePolitics",
       "fmkFilter::hideHotPosts",
+      "fmkFilter::openLinksInNewTab",
     ],
     (result) => {
+      // Set the UI switches to match the stored values
       $(
         `input[name='filterMode'][value=${result["fmkFilter::filterMode"]}]`
       ).prop("checked", true);
@@ -61,6 +68,10 @@ function initRender() {
       $("#hideHotPostsSwitch").prop(
         "checked",
         result["fmkFilter::hideHotPosts"]
+      );
+      $("#openLinksInNewTabSwitch").prop(
+        "checked",
+        result["fmkFilter::openLinksInNewTab"]
       );
     }
   );
