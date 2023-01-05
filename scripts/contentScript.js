@@ -74,6 +74,9 @@ function hideHotPosts() {
 
 function openLinksInNewTab() {
   $('h3.title > a').on('click', (e) => {
+    if (e.shiftKey || e.ctrlKey || e.metaKey) {
+      return
+    }
     e.preventDefault();
     chrome.storage.sync.get(
       'fmkFilter::openLinksInNewTab',
