@@ -7,16 +7,82 @@ $(document).ready(() => {
       'fmkFilter::hideToday',
       'fmkFilter::hidePolitics',
       'fmkFilter::hideHotPosts',
+      'fmkFilter::hideReplies',
+      'fmkFilter::numHideReplies',
     ],
-    (result) => {
-      result['fmkFilter::hideToday'] && hideToday();
-      result['fmkFilter::hidePolitics'] && hidePolitics();
-      result['fmkFilter::hideHotPosts'] && hideHotPosts();
+    (res) => {
+      res['fmkFilter::hideToday'] && hideToday();
+      res['fmkFilter::hidePolitics'] && hidePolitics();
+      res['fmkFilter::hideHotPosts'] && hideHotPosts();
+      res['fmkFilter::hideReplies'] &&
+        res['fmkFilter::numHideReplies'] &&
+        hideReplies(parseFloat(res['fmkFilter::numHideReplies'])) &
+          setUpRepliesObserver();
     }
   );
   openLinksInNewTab();
   setTimeout(() => $('.fm_best_widget').css('display', 'block'), 0);
 });
+
+function setUpRepliesObserver() {
+  const observer = new MutationObserver(() => {
+    chrome.storage.sync.get(
+      ['fmkFilter::hideReplies', 'fmkFilter::numHideReplies'],
+      (res) => {
+        res['fmkFilter::hideReplies'] &&
+          res['fmkFilter::numHideReplies'] &&
+          hideReplies(parseFloat(res['fmkFilter::numHideReplies']));
+      }
+    );
+  });
+
+  const repliesNode = document.getElementById('cmtPosition');
+
+  if (repliesNode) {
+    observer.observe(repliesNode, {
+      childList: true,
+    });
+  }
+}
+
+function hideReplies(numHideReplies) {
+  chrome.storage.sync.get(
+    [
+      'fmkFilter::hideRepliesCountMethod',
+      'fmkFilter::numHideReplies',
+      'fmkFilter::hideRepliesMode',
+    ],
+    (res) => {
+      $('ul.fdb_lst_ul')
+        .find('li.fdb_itm')
+        .each(function () {
+          const numDownvotes = parseInt(
+            $(this)
+              .find(
+                'div.fdb_nav > span.vote > a.bd_login[title="비추천"] > span.blamed_count'
+              )
+              .html() || 0
+          );
+          const numUpvotes = parseInt(
+            $(this)
+              .find(
+                'div.fdb_nav > span.vote > a.bd_login[title="추천"] > span.voted_count'
+              )
+              .html() || 0
+          );
+          if (
+            (res['fmkFilter::hideRepliesCountMethod'] == 'downvotes' &&
+              numDownvotes > numHideReplies) ||
+            (res['fmkFilter::hideRepliesCountMethod'] ==
+              'downvotesLessUpvotes' &&
+              numDownvotes - numUpvotes > numHideReplies)
+          ) {
+            hide(this, res['fmkFilter::hideRepliesMode']);
+          }
+        });
+    }
+  );
+}
 
 function findAndFilterCategories() {
   $('.fm_best_widget')
@@ -24,9 +90,9 @@ function findAndFilterCategories() {
     .each(function () {
       const href = $(this).find('.category').children('a').attr('href');
       const key = `fmkFilter::${href}`;
-      chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (result) => {
-        if (result[key] === false) {
-          hide(this, result);
+      chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (res) => {
+        if (res[key] === false) {
+          hide(this, res['fmkFilter::filterMode']);
         }
       });
     });
@@ -38,11 +104,11 @@ function findAndFilterKeyword(listElemType, postElemType, titleElemType) {
     .each(function () {
       const title = $(this).find(`${titleElemType}.title`).children('a').text();
       const key = `fmkFilter::keywords`;
-      chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (result) => {
-        if (result[key]) {
-          for ([keyword, enabled] of Object.entries(result[key])) {
+      chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (res) => {
+        if (res[key]) {
+          for ([keyword, enabled] of Object.entries(res[key])) {
             if (enabled && title.includes(keyword)) {
-              hide(this, result);
+              hide(this, res['fmkFilter::filterMode']);
             }
           }
         }
@@ -73,33 +139,33 @@ function hideHotPosts() {
 }
 
 function openLinksInNewTab() {
-  $('h3.title > a').on('click', (e) => {
+  $('h3.title > a, span.comment_count').on('click', (e) => {
     if (e.shiftKey || e.ctrlKey || e.metaKey) {
-      return
+      return;
     }
     e.preventDefault();
-    chrome.storage.sync.get(
-      'fmkFilter::openLinksInNewTab',
-      (openLinksInNewTab) => {
-        if (openLinksInNewTab['fmkFilter::openLinksInNewTab']) {
-          chrome.runtime.sendMessage({ link: e.target.href });
-        } else {
-          window.location.href = e.target.href;
-        }
+    e.stopPropagation();
+    let href = e.target.href;
+    if (!href) {
+      href = e.target.parentNode.href;
+    }
+    chrome.storage.sync.get('fmkFilter::openLinksInNewTab', (res) => {
+      if (res['fmkFilter::openLinksInNewTab']) {
+        chrome.runtime.sendMessage({ link: href });
+      } else {
+        window.location.href = href;
       }
-    );
+    });
   });
 }
 
-function hide(elem, storage) {
-  if (storage['fmkFilter::filterMode'] === 'blur') {
+function hide(elem, hideMode) {
+  if (hideMode === 'blur') {
     blur($(elem));
     $(elem)
-      .find('.title')
-      .find('a')
-      .mouseenter(() => unblur($(elem)))
-      .mouseleave(() => blur($(elem)));
-  } else if (storage['fmkFilter::filterMode'] === 'hide') {
+      .on('mouseenter', () => unblur($(elem)))
+      .on('mouseleave', () => blur($(elem)));
+  } else if (hideMode === 'hide') {
     $(elem).hide();
   }
 }

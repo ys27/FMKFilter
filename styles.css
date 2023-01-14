@@ -57,6 +57,11 @@ span {
 	cursor: pointer;
 }
 
+.currentNumHideReplies {
+	display: flex;
+	justify-content: center;
+}
+
 .setting {
 	display: flex;
 	flex-direction: column;

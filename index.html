@@ -6,8 +6,7 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
       integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
-    />
+      crossorigin="anonymous" />
     <script src="scripts/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="scripts/index.js"></script>
     <link rel="stylesheet" href="styles.css" />
@@ -21,12 +20,13 @@
       </div>
       <ul class="nav nav-tabs nav-fill">
         <li class="nav-item">
-          <a id="nav-category" class="nav-link active" href="#"
-            >갤러리 필터링</a
-          >
+          <a id="nav-category" class="nav-link active" href="#">갤러리 필터</a>
         </li>
         <li class="nav-item">
-          <a id="nav-keyword" class="nav-link" href="#">키워드 필터링</a>
+          <a id="nav-keyword" class="nav-link" href="#">키워드 필터</a>
+        </li>
+        <li class="nav-item">
+          <a id="nav-replies" class="nav-link" href="#">댓글 필터</a>
         </li>
       </ul>
       <div id="content-category">
@@ -51,6 +51,69 @@
         </div>
         <div class="keywords">
           <ul id="keywords" class="list-group"></ul>
+        </div>
+      </div>
+      <div id="content-replies" style="display: none">
+        <div class="header">
+          <h3>펨코 포텐 필터</h3>
+          <div>비추천 수로 댓글 필터하기</div>
+        </div>
+        <div class="setting">
+          <div class="custom-control custom-switch">
+            <input
+              type="checkbox"
+              class="custom-control-input"
+              id="hideRepliesSwitch" />
+            <label class="custom-control-label" for="hideRepliesSwitch"
+              >기능 사용</label
+            >
+          </div>
+        </div>
+        <hr />
+        <div class="currentNumHideReplies">
+          현재 수:&nbsp;
+          <span id="currentNumHideReplies"></span>
+        </div>
+        <div class="inputs">
+          <input type="number" id="input-replies" />
+          <button type="button" id="button-replies" class="btn btn-success">
+            적용
+          </button>
+        </div>
+        <div class="setting">
+          보고싶지 않은 댓글 가리기:
+          <div class="inputs">
+            <label
+              ><input
+                type="radio"
+                name="hideRepliesMode"
+                value="blur" />모자이크</label
+            >
+            <label
+              ><input
+                type="radio"
+                name="hideRepliesMode"
+                value="hide" />숨기기</label
+            >
+          </div>
+        </div>
+        <hr />
+        <div class="setting">
+          선택한 수 이상 가리기:
+          <div class="inputs">
+            <label
+              ><input
+                type="radio"
+                name="hideRepliesCountMethod"
+                value="downvotes" />비추천 수</label
+            >
+            <label
+              ><input
+                type="radio"
+                name="hideRepliesCountMethod"
+                value="downvotesLessUpvotes" />(비추천 - 추천) 수</label
+            >
+          </div>
         </div>
       </div>
     </div>
