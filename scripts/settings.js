@@ -46,6 +46,9 @@ $(document).ready(() => {
   $('#remove-keywords').click(() => {
     chrome.storage.sync.remove('fmkFilter::keywords');
   });
+  $('#remove-users').click(() => {
+    chrome.storage.sync.remove('fmkFilter::users');
+  });
 });
 
 function initRender() {

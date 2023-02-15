@@ -2,6 +2,8 @@ $(document).ready(() => {
   shouldFilterByPath() && findAndFilterCategories();
   findAndFilterKeyword('ul', 'li.li', 'h3');
   findAndFilterKeyword('tbody', 'tr', 'td');
+  findAndFilterUser('ul', 'li.li', 'span');
+  setUpRepliesObserver();
   chrome.storage.sync.get(
     [
       'fmkFilter::hideToday',
@@ -9,6 +11,7 @@ $(document).ready(() => {
       'fmkFilter::hideHotPosts',
       'fmkFilter::hideReplies',
       'fmkFilter::numHideReplies',
+      'fmkFilter::users',
     ],
     (res) => {
       res['fmkFilter::hideToday'] && hideToday();
@@ -16,8 +19,8 @@ $(document).ready(() => {
       res['fmkFilter::hideHotPosts'] && hideHotPosts();
       res['fmkFilter::hideReplies'] &&
         res['fmkFilter::numHideReplies'] &&
-        hideReplies(parseFloat(res['fmkFilter::numHideReplies'])) &
-          setUpRepliesObserver();
+        hideReplies(parseFloat(res['fmkFilter::numHideReplies']));
+      res['fmkFilter::users'] && hideUsers();
     }
   );
   openLinksInNewTab();
@@ -27,11 +30,16 @@ $(document).ready(() => {
 function setUpRepliesObserver() {
   const observer = new MutationObserver(() => {
     chrome.storage.sync.get(
-      ['fmkFilter::hideReplies', 'fmkFilter::numHideReplies'],
+      [
+        'fmkFilter::hideReplies',
+        'fmkFilter::numHideReplies',
+        'fmkFilter::users',
+      ],
       (res) => {
         res['fmkFilter::hideReplies'] &&
           res['fmkFilter::numHideReplies'] &&
           hideReplies(parseFloat(res['fmkFilter::numHideReplies']));
+        res['fmkFilter::users'] && hideUsers();
       }
     );
   });
@@ -108,6 +116,44 @@ function findAndFilterKeyword(listElemType, postElemType, titleElemType) {
         if (res[key]) {
           for ([keyword, enabled] of Object.entries(res[key])) {
             if (enabled && title.includes(keyword)) {
+              hide(this, res['fmkFilter::filterMode']);
+            }
+          }
+        }
+      });
+    });
+}
+
+function hideUsers() {
+  chrome.storage.sync.get(
+    ['fmkFilter::users', 'fmkFilter::hideRepliesMode'],
+    (res) => {
+      const hiddenUsers = res['fmkFilter::users'];
+      $('ul.fdb_lst_ul')
+        .find('li.fdb_itm')
+        .each(function () {
+          const user = $(this).find('div.meta > a.member_plate').text();
+          if (hiddenUsers[user]) {
+            hide(this, res['fmkFilter::hideRepliesMode']);
+          }
+        });
+    }
+  );
+}
+
+function findAndFilterUser(listElemType, postElemType, titleElemType) {
+  $(listElemType)
+    .find(postElemType)
+    .each(function () {
+      const user = $(this)
+        .find(`${titleElemType}.author`)
+        .text()
+        .split('/ ')[1];
+      const key = `fmkFilter::users`;
+      chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (res) => {
+        if (res[key]) {
+          for ([hiddenUser, enabled] of Object.entries(res[key])) {
+            if (enabled && user.includes(hiddenUser)) {
               hide(this, res['fmkFilter::filterMode']);
             }
           }

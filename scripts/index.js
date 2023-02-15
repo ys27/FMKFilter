@@ -1,9 +1,16 @@
 const white = 'rgb(255, 255, 255)';
 
 $(document).ready(() => {
+  const allTypes = ['category', 'keyword', 'replies', 'user'];
+  const addValueTypes = ['keyword', 'user'];
   initStorage();
   getFilters();
-  getKeywords();
+  addValueTypes.forEach((type) => {
+    getStoredValues(type);
+    $(`#button-${type}`).click(() => {
+      addStoredValue(type);
+    });
+  });
   getHideReplies();
   $('#refresh').click(() => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -13,32 +20,15 @@ $(document).ready(() => {
   $('#settings').click(() => {
     location.href = 'settings.html';
   });
-  $('#nav-category').click(() => {
-    $('#content-category').show();
-    $('#content-keyword').hide();
-    $('#content-replies').hide();
-    $('#nav-category').addClass('active');
-    $('#nav-keyword').removeClass('active');
-    $('#nav-replies').removeClass('active');
-  });
-  $('#nav-keyword').click(() => {
-    $('#content-category').hide();
-    $('#content-keyword').show();
-    $('#content-replies').hide();
-    $('#nav-category').removeClass('active');
-    $('#nav-keyword').addClass('active');
-    $('#nav-replies').removeClass('active');
-  });
-  $('#nav-replies').click(() => {
-    $('#content-category').hide();
-    $('#content-keyword').hide();
-    $('#content-replies').show();
-    $('#nav-category').removeClass('active');
-    $('#nav-keyword').removeClass('active');
-    $('#nav-replies').addClass('active');
-  });
-  $('#button-keyword').click(() => {
-    addKeyword();
+  allTypes.forEach((type, typeIndex) => {
+    $(`#nav-${type}`).click(() => {
+      allTypes.forEach((t) => {
+        $(`#content-${t}`).hide();
+        $(`#nav-${t}`).removeClass('active');
+      });
+      $(`#content-${allTypes[typeIndex]}`).show();
+      $(`#nav-${allTypes[typeIndex]}`).addClass('active');
+    });
   });
   $('#button-replies').click(() => {
     applyHideReplies();
@@ -46,6 +36,11 @@ $(document).ready(() => {
   $('#input-keyword').keyup((event) => {
     if (event.keyCode === 13) {
       $('#button-keyword').trigger('click');
+    }
+  });
+  $('#input-user').keyup((event) => {
+    if (event.keyCode === 13) {
+      $('#button-user').trigger('click');
     }
   });
   $('#hideRepliesSwitch').click(() => {
@@ -112,67 +107,69 @@ function getHideReplies() {
   });
 }
 
-function addKeyword() {
-  const keyword = $('#input-keyword').val();
-  if (keyword.length) {
-    chrome.storage.sync.get('fmkFilter::keywords', (res) => {
+function addStoredValue(type) {
+  const value = $(`#input-${type}`).val();
+  if (value.length) {
+    chrome.storage.sync.get(`fmkFilter::${type}s`, (res) => {
       chrome.storage.sync.set(
         {
-          'fmkFilter::keywords': {
-            ...res['fmkFilter::keywords'],
-            [keyword]: true,
+          [`fmkFilter::${type}s`]: {
+            ...res[`fmkFilter::${type}s`],
+            [value]: true,
           },
         },
-        getKeywords
+        () => getStoredValues(type)
       );
     });
   }
 }
 
-function getKeywords() {
-  $('#input-keyword').val('');
-  chrome.storage.sync.get('fmkFilter::keywords', (res) => {
-    $('#keywords').empty();
-    if (res['fmkFilter::keywords']) {
-      for (const [keyword, enabled] of Object.entries(
-        res['fmkFilter::keywords']
+function getStoredValues(type) {
+  $(`#input-${type}`).val('');
+  chrome.storage.sync.get(`fmkFilter::${type}s`, (res) => {
+    $(`#${type}s`).empty();
+    if (res[`fmkFilter::${type}s`]) {
+      for (const [value, enabled] of Object.entries(
+        res[`fmkFilter::${type}s`]
       )) {
-        $('#keywords').append(`
-                    <li class="list-group-item d-flex justify-content-between align-items-center keyword">
-                        ${keyword}
+        $(`#${type}s`).append(`
+                    <li class="list-group-item d-flex justify-content-between align-items-center ${type}">
+                        ${value}
                         <div>
-                            <span id="toggle-keyword::${keyword}" ${
+                            <span id="toggle-${type}::${value}" ${
           enabled
             ? 'class="badge badge-primary badge-pill">사용</span>'
             : 'class="badge badge-secondary badge-pill">미사용</span>'
         }
-                            <span id="remove-keyword::${keyword}">삭제</span>
+                            <span id="remove-${type}::${value}">삭제</span>
                         </div>
                     </li>`);
       }
-      $('.keyword span').click((el) => {
-        const [, mode, keyword] = /^(.+)-keyword::(.+)$/.exec(el.target.id);
-        chrome.storage.sync.get('fmkFilter::keywords', (res) => {
+      $(`.${type} span`).click((el) => {
+        const [, mode, value] = new RegExp(`^(.+)-${type}::(.+)$`).exec(
+          el.target.id
+        );
+        chrome.storage.sync.get(`fmkFilter::${type}s`, (res) => {
           if (mode === 'toggle') {
-            const enabled = !res['fmkFilter::keywords'][keyword];
+            const enabled = !res[`fmkFilter::${type}s`][value];
             chrome.storage.sync.set(
               {
-                'fmkFilter::keywords': {
-                  ...res['fmkFilter::keywords'],
-                  [keyword]: enabled,
+                [`fmkFilter::${type}s`]: {
+                  ...res[`fmkFilter::${type}s`],
+                  [value]: enabled,
                 },
               },
-              getKeywords
+              () => getStoredValues(type)
             );
           } else if (mode === 'remove') {
-            delete res['fmkFilter::keywords'][keyword];
+            delete res[`fmkFilter::${type}s`][value];
             chrome.storage.sync.set(
               {
-                'fmkFilter::keywords': {
-                  ...res['fmkFilter::keywords'],
+                [`fmkFilter::${type}s`]: {
+                  ...res[`fmkFilter::${type}s`],
                 },
               },
-              getKeywords
+              () => getStoredValues(type)
             );
           }
         });

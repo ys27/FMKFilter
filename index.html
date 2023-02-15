@@ -20,20 +20,23 @@
       </div>
       <ul class="nav nav-tabs nav-fill">
         <li class="nav-item">
-          <a id="nav-category" class="nav-link active" href="#">갤러리 필터</a>
+          <a id="nav-category" class="nav-link active" href="#">갤러리</a>
         </li>
         <li class="nav-item">
-          <a id="nav-keyword" class="nav-link" href="#">키워드 필터</a>
+          <a id="nav-keyword" class="nav-link" href="#">키워드</a>
         </li>
         <li class="nav-item">
-          <a id="nav-replies" class="nav-link" href="#">댓글 필터</a>
+          <a id="nav-replies" class="nav-link" href="#">댓글</a>
+        </li>
+        <li class="nav-item">
+          <a id="nav-user" class="nav-link" href="#">사용자</a>
         </li>
       </ul>
       <div id="content-category">
         <div class="header">
           <h3>펨코 포텐 필터</h3>
-          <div>포텐에서 보기싫은 갤러리 필터하기</div>
-          <div>흰색 = 보이는 상태; 회색 = 안 보이는 상태</div>
+          <div>포텐에서 보기 싫은 갤러리 필터하기</div>
+          <div>(흰색 = 보이는 상태; 회색 = 안 보이는 상태)</div>
         </div>
         <div id="loader" class="loader">갤러리 목록 불러오기중...</div>
         <div id="categories" class="categories"></div>
@@ -114,6 +117,22 @@
                 value="downvotesLessUpvotes" />(비추천 - 추천) 수</label
             >
           </div>
+        </div>
+      </div>
+      <div id="content-user" style="display: none">
+        <div class="header">
+          <h3>펨코 포텐 필터</h3>
+          <div>사용자 닉네임으로 필터하기</div>
+          <div>(사용자 닉네임 변경 감지 불가)</div>
+        </div>
+        <div class="inputs">
+          <input type="text" id="input-user" />
+          <button type="button" id="button-user" class="btn btn-success">
+            사용자 추가
+          </button>
+        </div>
+        <div class="users">
+          <ul id="users" class="list-group"></ul>
         </div>
       </div>
     </div>
