@@ -2,7 +2,8 @@ $(document).ready(() => {
   shouldFilterByPath() && findAndFilterCategories();
   findAndFilterKeyword('ul', 'li.li', 'h3');
   findAndFilterKeyword('tbody', 'tr', 'td');
-  findAndFilterUser('ul', 'li.li', 'span');
+  findAndFilterUser('ul', 'li.li', 'span.author');
+  findAndFilterUser('table.bd_lst tbody', 'tr', 'td.author span a');
   setUpRepliesObserver();
   chrome.storage.sync.get(
     [
@@ -145,15 +146,14 @@ function findAndFilterUser(listElemType, postElemType, titleElemType) {
   $(listElemType)
     .find(postElemType)
     .each(function () {
-      const user = $(this)
-        .find(`${titleElemType}.author`)
-        .text()
-        .split('/ ')[1];
+      const user =
+        $(this).find(titleElemType).text().split('/ ')[1] ||
+        $(this).find(titleElemType).text();
       const key = `fmkFilter::users`;
       chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (res) => {
         if (res[key]) {
           for ([hiddenUser, enabled] of Object.entries(res[key])) {
-            if (enabled && user.includes(hiddenUser)) {
+            if (enabled && user?.includes(hiddenUser)) {
               hide(this, res['fmkFilter::filterMode']);
             }
           }
