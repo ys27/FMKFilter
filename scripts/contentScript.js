@@ -1,9 +1,12 @@
 $(document).ready(() => {
-  shouldFilterByPath() && findAndFilterCategories();
+  if (shouldFilterByPath()) {
+    findAndFilterCategories();
+  }
   findAndFilterKeyword('ul', 'li.li', 'h3');
   findAndFilterKeyword('tbody', 'tr', 'td');
   findAndFilterUser('ul', 'li.li', 'span.author');
   findAndFilterUser('table.bd_lst tbody', 'tr', 'td.author span a');
+  findAndFilterPostTitleInPostView();
   setUpRepliesObserver();
   chrome.storage.sync.get(
     [
@@ -27,6 +30,46 @@ $(document).ready(() => {
   openLinksInNewTab();
   setTimeout(() => $('.fm_best_widget').css('display', 'block'), 0);
 });
+
+function findAndFilterPostTitleInPostView() {
+  const titleElem = $('.board > .top_area > h1 > span')?.first();
+  const title = titleElem?.text();
+  const author = $('.board > .btm_area > .side > a.member_plate')
+    ?.first()
+    ?.text();
+  const category = $('.bd_tl > .pop_more > span > a.mid')
+    .attr('href')
+    ?.replace(/^\/+/, '');
+
+  const categoryKey = `fmkFilter::${category}`;
+  const titleKey = `fmkFilter::keywords`;
+  const userKey = `fmkFilter::users`;
+  chrome.storage.sync.get([categoryKey, titleKey, userKey], (res) => {
+    // Check categories
+    if (res[categoryKey] === false) {
+      hide(titleElem, 'blur');
+      return;
+    }
+    // Check keywords in title
+    if (res[titleKey]) {
+      for ([keyword, enabled] of Object.entries(res[titleKey])) {
+        if (enabled && title.includes(keyword)) {
+          hide(titleElem, 'blur');
+          return;
+        }
+      }
+    }
+    // Check user
+    if (res[userKey]) {
+      for ([hiddenUser, enabled] of Object.entries(res[userKey])) {
+        if (enabled && author?.includes(hiddenUser)) {
+          hide(titleElem, 'blur');
+          return;
+        }
+      }
+    }
+  });
+}
 
 function setUpRepliesObserver() {
   const observer = new MutationObserver(() => {
