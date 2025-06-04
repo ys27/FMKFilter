@@ -43,6 +43,11 @@ $(document).ready(() => {
       $('#button-user').trigger('click');
     }
   });
+  $('#input-reason').keyup((event) => {
+    if (event.keyCode === 13) {
+      $('#button-user').trigger('click');
+    }
+  });
   $('#hideRepliesSwitch').click(() => {
     chrome.storage.sync.set({
       'fmkFilter::hideReplies': !!$('#hideRepliesSwitch:checked').val(),
@@ -110,6 +115,20 @@ function getHideReplies() {
 function addStoredValue(type) {
   const value = $(`#input-${type}`).val();
   if (value.length) {
+    if (type === 'user') {
+      const date = new Date();
+      const reason = `${date.toLocaleDateString("ko-KR")} - ${$(`#input-reason`).val().trim()}`;
+      if (reason.length) {
+        chrome.storage.sync.get(`fmkFilter::userReasons`, (res) => {
+          chrome.storage.sync.set({
+            [`fmkFilter::userReasons`]: {
+              ...res[`fmkFilter::userReasons`],
+              [value]: reason,
+            },
+          });
+        });
+      }
+    }
     chrome.storage.sync.get(`fmkFilter::${type}s`, (res) => {
       chrome.storage.sync.set(
         {
@@ -126,56 +145,77 @@ function addStoredValue(type) {
 
 function getStoredValues(type) {
   $(`#input-${type}`).val('');
-  chrome.storage.sync.get(`fmkFilter::${type}s`, (res) => {
-    $(`#${type}s`).empty();
-    if (res[`fmkFilter::${type}s`]) {
-      for (const [value, enabled] of Object.entries(
-        res[`fmkFilter::${type}s`]
-      )) {
-        $(`#${type}s`).append(`
+  $(`#input-reason`).val('');
+  chrome.storage.sync.get(
+    [
+      `fmkFilter::${type}s`,
+      ...(type === 'user' ? ['fmkFilter::userReasons'] : []),
+    ],
+    (res) => {
+      $(`#${type}s`).empty();
+      if (res[`fmkFilter::${type}s`]) {
+        for (const [value, enabled] of Object.entries(
+          res[`fmkFilter::${type}s`]
+        )) {
+          $(`#${type}s`).append(`
                     <li class="list-group-item d-flex justify-content-between align-items-center ${type}">
-                        ${value}
+                        ${value}${
+            res[`fmkFilter::userReasons`][value]
+              ? ` (${res['fmkFilter::userReasons'][value]})`
+              : ''
+          }
                         <div>
                             <span id="toggle-${type}::${value}" ${
-          enabled
-            ? 'class="badge badge-primary badge-pill">사용</span>'
-            : 'class="badge badge-secondary badge-pill">미사용</span>'
-        }
+            enabled
+              ? 'class="badge badge-primary badge-pill">사용</span>'
+              : 'class="badge badge-secondary badge-pill">미사용</span>'
+          }
                             <span id="remove-${type}::${value}">삭제</span>
                         </div>
                     </li>`);
-      }
-      $(`.${type} span`).click((el) => {
-        const [, mode, value] = new RegExp(`^(.+)-${type}::(.+)$`).exec(
-          el.target.id
-        );
-        chrome.storage.sync.get(`fmkFilter::${type}s`, (res) => {
-          if (mode === 'toggle') {
-            const enabled = !res[`fmkFilter::${type}s`][value];
-            chrome.storage.sync.set(
-              {
-                [`fmkFilter::${type}s`]: {
-                  ...res[`fmkFilter::${type}s`],
-                  [value]: enabled,
-                },
-              },
-              () => getStoredValues(type)
-            );
-          } else if (mode === 'remove') {
-            delete res[`fmkFilter::${type}s`][value];
-            chrome.storage.sync.set(
-              {
-                [`fmkFilter::${type}s`]: {
-                  ...res[`fmkFilter::${type}s`],
-                },
-              },
-              () => getStoredValues(type)
-            );
-          }
+        }
+        $(`.${type} span`).click((el) => {
+          const [, mode, value] = new RegExp(`^(.+)-${type}::(.+)$`).exec(
+            el.target.id
+          );
+          chrome.storage.sync.get(
+            [
+              `fmkFilter::${type}s`,
+              ...(type === 'user' ? ['fmkFilter::userReasons'] : []),
+            ],
+            (res) => {
+              if (mode === 'toggle') {
+                const enabled = !res[`fmkFilter::${type}s`][value];
+                chrome.storage.sync.set(
+                  {
+                    [`fmkFilter::${type}s`]: {
+                      ...res[`fmkFilter::${type}s`],
+                      [value]: enabled,
+                    },
+                  },
+                  () => getStoredValues(type)
+                );
+              } else if (mode === 'remove') {
+                if (type === 'user') {
+                  delete res[`fmkFilter::userReasons`][value];
+                  chrome.storage.sync.set({
+                    [`fmkFilter::userReasons`]: res[`fmkFilter::userReasons`],
+                  });
+                }
+                delete res[`fmkFilter::${type}s`][value];
+                chrome.storage.sync.set(
+                  {
+                    [`fmkFilter::${type}s`]: res[`fmkFilter::${type}s`],
+                  },
+                  () => getStoredValues(type)
+                );
+              }
+            }
+          );
         });
-      });
+      }
     }
-  });
+  );
 }
 
 function getFilters() {

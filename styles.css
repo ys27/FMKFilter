@@ -15,9 +15,10 @@ body {
 	margin-top: 10px;
 }
 
-.sidebar {
+.flex-between {
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
 }
 
 .loader {
@@ -95,4 +96,16 @@ input[type='radio'] {
 
 .version {
 	margin-top: 20px;
+}
+
+.w-100 {
+	width: 100%;
+}
+
+#input-user, #input-reason {
+	width: 150px;
+}
+
+button {
+	margin-left: 4px;
 }

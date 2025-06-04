@@ -14,7 +14,7 @@
 
   <body>
     <div>
-      <div class="sidebar">
+      <div class="flex-between">
         <span id="refresh">현재 탭 새로고침</span>
         <span id="settings">설정</span>
       </div>
@@ -126,7 +126,14 @@
           <div>(사용자 닉네임 변경 감지 불가)</div>
         </div>
         <div class="inputs">
-          <input type="text" id="input-user" />
+          <div class="w-100">
+            <div class="flex-between">
+              <label for="input-user">사용자</label><input type="text" id="input-user" maxlength="32"/>
+            </div>
+            <div class="flex-between">
+              <label for="input-reason">사유</label><textarea id="input-reason" maxlength="256"></textarea>
+            </div>
+          </div>
           <button type="button" id="button-user" class="btn btn-success">
             사용자 추가
           </button>
