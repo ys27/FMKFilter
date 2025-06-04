@@ -117,7 +117,9 @@ function addStoredValue(type) {
   if (value.length) {
     if (type === 'user') {
       const date = new Date();
-      const reason = `${date.toLocaleDateString("ko-KR")} - ${$(`#input-reason`).val().trim()}`;
+      const localizedDate = date.toLocaleDateString('ko-KR');
+      const inputReason = $(`#input-reason`).val().trim();
+      const reason = `${localizedDate}${inputReason ? ` - ${inputReason}`: ''}`;
       if (reason.length) {
         chrome.storage.sync.get(`fmkFilter::userReasons`, (res) => {
           chrome.storage.sync.set({

@@ -18,7 +18,7 @@ body {
 .flex-between {
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
+	align-items: baseline;
 }
 
 .loader {
@@ -36,7 +36,7 @@ body {
 	align-content: space-between;
 }
 
-.mainCategory>span {
+.mainCategory > span {
 	font-weight: bold;
 	font-size: 150%;
 }
