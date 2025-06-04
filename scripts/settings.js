@@ -49,10 +49,10 @@ $(document).ready(() => {
   $('#remove-users').click(() => {
     chrome.storage.local.remove('fmkFilter::users');
   });
-  $('#back-up-settings').click(() => {
+  $('#download-settings').click(() => {
     chrome.storage.local.get(null, backUpSettings);
   });
-  $('#restore-settings').click(() => {
+  $('#upload-settings').click(() => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
@@ -68,7 +68,7 @@ $(document).ready(() => {
               alert('불러오기 완료! 새로고침 후 적용됩니다.');
             });
           } catch (error) {
-            alert('Invalid JSON file.');
+            alert('불러올 수 없습니다. 올바른 JSON 파일인지 확인하세요.');
           }
         };
         reader.readAsText(file);
@@ -76,7 +76,7 @@ $(document).ready(() => {
     };
     input.click();
   });
-  $('#back-up-sync-settings').click(() => {
+  $('#download-sync-settings').click(() => {
     chrome.storage.sync.get(null, backUpSettings);
   });
 });

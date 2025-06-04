@@ -174,7 +174,7 @@ function getStoredValues(type) {
               : ''
           }`;
           $(`#${type}s`).append(`
-                    <li class="list-group-item d-flex justify-content-between align-items-center" title="${text}">
+                    <li class="list-group-item d-flex justify-content-between align-items-center ${type}" title="${text}">
                         <div class="list-group-item-text">${text}</div>
                         <div>
                             <span id="toggle-${type}::${value}" ${
