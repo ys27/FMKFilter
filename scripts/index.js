@@ -3,6 +3,7 @@ const white = 'rgb(255, 255, 255)';
 $(document).ready(() => {
   const allTypes = ['category', 'keyword', 'replies', 'user'];
   const addValueTypes = ['keyword', 'user'];
+  initRender();
   initStorage();
   getFilters();
   addValueTypes.forEach((type) => {
@@ -30,6 +31,12 @@ $(document).ready(() => {
       $(`#nav-${allTypes[typeIndex]}`).addClass('active');
     });
   });
+  $('#main-banner-close').click(() => {
+    chrome.storage.local.set({
+      'fmkFilter::mainBanner': false,
+    });
+    $('#main-banner').hide();
+  });
   $('#button-replies').click(() => {
     applyHideReplies();
   });
@@ -49,7 +56,7 @@ $(document).ready(() => {
     }
   });
   $('#hideRepliesSwitch').click(() => {
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       'fmkFilter::hideReplies': !!$('#hideRepliesSwitch:checked').val(),
     });
   });
@@ -59,14 +66,14 @@ $(document).ready(() => {
     }
   });
   $("input[name='hideRepliesMode']").click(() => {
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       'fmkFilter::hideRepliesMode': $(
         "input[name='hideRepliesMode']:checked"
       ).val(),
     });
   });
   $("input[name='hideRepliesCountMethod']").click(() => {
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       'fmkFilter::hideRepliesCountMethod': $(
         "input[name='hideRepliesCountMethod']:checked"
       ).val(),
@@ -77,17 +84,17 @@ $(document).ready(() => {
 function applyHideReplies() {
   const numHideReplies = $('#input-replies').val();
   if (numHideReplies) {
-    chrome.storage.sync.set({ 'fmkFilter::numHideReplies': numHideReplies });
+    chrome.storage.local.set({ 'fmkFilter::numHideReplies': numHideReplies });
     $('#currentNumHideReplies').html(numHideReplies);
   } else {
-    chrome.storage.sync.get('fmkFilter::numHideReplies', (res) => {
+    chrome.storage.local.get('fmkFilter::numHideReplies', (res) => {
       $('#input-replies').val(res['fmkFilter::numHideReplies']);
     });
   }
 }
 
 function getHideReplies() {
-  chrome.storage.sync.get(
+  chrome.storage.local.get(
     [
       'fmkFilter::hideReplies',
       'fmkFilter::numHideReplies',
@@ -107,7 +114,7 @@ function getHideReplies() {
       ).prop('checked', true);
     }
   );
-  chrome.storage.sync.get('fmkFilter::numHideReplies', (res) => {
+  chrome.storage.local.get('fmkFilter::numHideReplies', (res) => {
     $('#input-replies').val(res['fmkFilter::numHideReplies']);
   });
 }
@@ -119,10 +126,12 @@ function addStoredValue(type) {
       const date = new Date();
       const localizedDate = date.toLocaleDateString('ko-KR');
       const inputReason = $(`#input-reason`).val().trim();
-      const reason = `${localizedDate}${inputReason ? ` - ${inputReason}`: ''}`;
+      const reason = `${localizedDate}${
+        inputReason ? ` - ${inputReason}` : ''
+      }`;
       if (reason.length) {
-        chrome.storage.sync.get(`fmkFilter::userReasons`, (res) => {
-          chrome.storage.sync.set({
+        chrome.storage.local.get(`fmkFilter::userReasons`, (res) => {
+          chrome.storage.local.set({
             [`fmkFilter::userReasons`]: {
               ...res[`fmkFilter::userReasons`],
               [value]: reason,
@@ -131,8 +140,8 @@ function addStoredValue(type) {
         });
       }
     }
-    chrome.storage.sync.get(`fmkFilter::${type}s`, (res) => {
-      chrome.storage.sync.set(
+    chrome.storage.local.get(`fmkFilter::${type}s`, (res) => {
+      chrome.storage.local.set(
         {
           [`fmkFilter::${type}s`]: {
             ...res[`fmkFilter::${type}s`],
@@ -148,7 +157,7 @@ function addStoredValue(type) {
 function getStoredValues(type) {
   $(`#input-${type}`).val('');
   $(`#input-reason`).val('');
-  chrome.storage.sync.get(
+  chrome.storage.local.get(
     [
       `fmkFilter::${type}s`,
       ...(type === 'user' ? ['fmkFilter::userReasons'] : []),
@@ -180,7 +189,7 @@ function getStoredValues(type) {
           const [, mode, value] = new RegExp(`^(.+)-${type}::(.+)$`).exec(
             el.target.id
           );
-          chrome.storage.sync.get(
+          chrome.storage.local.get(
             [
               `fmkFilter::${type}s`,
               ...(type === 'user' ? ['fmkFilter::userReasons'] : []),
@@ -188,7 +197,7 @@ function getStoredValues(type) {
             (res) => {
               if (mode === 'toggle') {
                 const enabled = !res[`fmkFilter::${type}s`][value];
-                chrome.storage.sync.set(
+                chrome.storage.local.set(
                   {
                     [`fmkFilter::${type}s`]: {
                       ...res[`fmkFilter::${type}s`],
@@ -200,12 +209,12 @@ function getStoredValues(type) {
               } else if (mode === 'remove') {
                 if (type === 'user') {
                   delete res[`fmkFilter::userReasons`][value];
-                  chrome.storage.sync.set({
+                  chrome.storage.local.set({
                     [`fmkFilter::userReasons`]: res[`fmkFilter::userReasons`],
                   });
                 }
                 delete res[`fmkFilter::${type}s`][value];
-                chrome.storage.sync.set(
+                chrome.storage.local.set(
                   {
                     [`fmkFilter::${type}s`]: res[`fmkFilter::${type}s`],
                   },
@@ -240,7 +249,7 @@ function getFilters() {
 }
 
 function initStorage() {
-  chrome.storage.sync.get(
+  chrome.storage.local.get(
     [
       'fmkFilter::filterMode',
       'fmkFilter::hideRepliesMode',
@@ -248,18 +257,28 @@ function initStorage() {
     ],
     (res) => {
       if (!res['fmkFilter::filterMode']) {
-        chrome.storage.sync.set({ 'fmkFilter::filterMode': 'blur' });
+        chrome.storage.local.set({ 'fmkFilter::filterMode': 'blur' });
       }
       if (!res['fmkFilter::hideRepliesMode']) {
-        chrome.storage.sync.set({ 'fmkFilter::hideRepliesMode': 'blur' });
+        chrome.storage.local.set({ 'fmkFilter::hideRepliesMode': 'blur' });
       }
       if (!res['fmkFilter::hideRepliesCountMethod']) {
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
           'fmkFilter::hideRepliesCountMethod': 'downvotes',
         });
       }
     }
   );
+}
+
+function initRender() {
+  chrome.storage.local.get('fmkFilter::mainBanner', (res) => {
+    if (res['fmkFilter::mainBanner'] === false) {
+      $('#main-banner').hide();
+    } else {
+      $('#main-banner').show();
+    }
+  });
 }
 
 function getFiltersJson(filtersList) {
@@ -330,7 +349,7 @@ function renderFilters(filters) {
           `<div id="${categoryId}" class="category"><span class="filter">${category}</span></div>`
         );
         const key = `fmkFilter::${categoryId}`;
-        chrome.storage.sync.get([key], (res) => {
+        chrome.storage.local.get([key], (res) => {
           res[key] !== false
             ? $(`#${categoryId}`).addClass('enabled')
             : $(`#${categoryId}`).addClass('disabled');
@@ -382,11 +401,11 @@ function toggleView(category) {
 }
 
 function setFilterTrue(id) {
-  chrome.storage.sync.set({ [`fmkFilter::${id}`]: true });
+  chrome.storage.local.set({ [`fmkFilter::${id}`]: true });
 }
 
 function setFilterFalse(id) {
-  chrome.storage.sync.set({ [`fmkFilter::${id}`]: false });
+  chrome.storage.local.set({ [`fmkFilter::${id}`]: false });
 }
 
 function isObject(value) {

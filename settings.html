@@ -1,72 +1,116 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous" />
+    <script src="scripts/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="scripts/settings.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
-  <script src="scripts/jquery-3.6.0.min.js"></script>
-  <script type="text/javascript" src="scripts/settings.js"></script>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-
-<body>
-  <div class="flex-between">
-    <span id="refresh">현재 탭 새로고침</span>
-    <span id="back">뒤로</span>
-  </div>
-  <div class="header">
-    <h3>환경설정</h3>
-  </div>
-  <hr />
-  <div class="setting">
-    보고싶지 않은 글 가리기:
-    <div class="inputs">
-      <label><input type="radio" name="filterMode" value="blur" />모자이크</label>
-      <label><input type="radio" name="filterMode" value="hide" />숨기기</label>
+  <body>
+    <div class="flex-between">
+      <span id="refresh">현재 탭 새로고침</span>
+      <span id="back">뒤로</span>
     </div>
-  </div>
-  <hr />
-  <div class="setting">
-    <div class="custom-control custom-switch">
-      <input type="checkbox" class="custom-control-input" id="hideTodaySwitch" />
-      <label class="custom-control-label" for="hideTodaySwitch">오늘의 포텐/예비 포텐글 숨기기</label>
+    <div class="header">
+      <h3>환경설정</h3>
     </div>
-  </div>
-  <hr />
-  <div class="setting">
-    <div class="custom-control custom-switch">
-      <input type="checkbox" class="custom-control-input" id="hidePoliticsSwitch" />
-      <label class="custom-control-label" for="hidePoliticsSwitch">포텐 메인 페이지 정치글 숨기기</label>
+    <hr />
+    <div class="setting">
+      보고싶지 않은 글 가리기:
+      <div class="inputs">
+        <label
+          ><input type="radio" name="filterMode" value="blur" />모자이크</label
+        >
+        <label
+          ><input type="radio" name="filterMode" value="hide" />숨기기</label
+        >
+      </div>
     </div>
-  </div>
-  <hr />
-  <div class="setting">
-    <div class="custom-control custom-switch">
-      <input type="checkbox" class="custom-control-input" id="hideHotPostsSwitch" />
-      <label class="custom-control-label" for="hideHotPostsSwitch">화제글 숨기기</label>
+    <hr />
+    <div class="setting">
+      <div class="custom-control custom-switch">
+        <input
+          type="checkbox"
+          class="custom-control-input"
+          id="hideTodaySwitch" />
+        <label class="custom-control-label" for="hideTodaySwitch"
+          >오늘의 포텐/예비 포텐글 숨기기</label
+        >
+      </div>
     </div>
-  </div>
-  <hr />
-  <div class="setting">
-    <div class="custom-control custom-switch">
-      <input type="checkbox" class="custom-control-input" id="openLinksInNewTabSwitch" />
-      <label class="custom-control-label" for="openLinksInNewTabSwitch">모든 게시물 새 탭에 열기</label>
+    <hr />
+    <div class="setting">
+      <div class="custom-control custom-switch">
+        <input
+          type="checkbox"
+          class="custom-control-input"
+          id="hidePoliticsSwitch" />
+        <label class="custom-control-label" for="hidePoliticsSwitch"
+          >포텐 메인 페이지 정치글 숨기기</label
+        >
+      </div>
     </div>
-  </div>
-  <hr />
-  <div class="setting">
-    <button type="button" id="remove-keywords" class="btn btn-warning">
-      키워드 모두 지우기
-    </button>
-  </div>
-  <div class="setting">
-    <button type="button" id="remove-users" class="btn btn-warning">
-      닉네임 모두 지우기
-    </button>
-  </div>
-  <hr />
-  <div id="version" class="version"></div>
-</body>
-
+    <hr />
+    <div class="setting">
+      <div class="custom-control custom-switch">
+        <input
+          type="checkbox"
+          class="custom-control-input"
+          id="hideHotPostsSwitch" />
+        <label class="custom-control-label" for="hideHotPostsSwitch"
+          >화제글 숨기기</label
+        >
+      </div>
+    </div>
+    <hr />
+    <div class="setting">
+      <div class="custom-control custom-switch">
+        <input
+          type="checkbox"
+          class="custom-control-input"
+          id="openLinksInNewTabSwitch" />
+        <label class="custom-control-label" for="openLinksInNewTabSwitch"
+          >모든 게시물 새 탭에 열기</label
+        >
+      </div>
+    </div>
+    <hr />
+    <div class="setting">
+      <button type="button" id="remove-keywords" class="btn btn-warning">
+        키워드 모두 지우기
+      </button>
+    </div>
+    <div class="setting">
+      <button type="button" id="remove-users" class="btn btn-warning">
+        닉네임 모두 지우기
+      </button>
+    </div>
+    <hr />
+    <div class="setting">
+      <button type="button" id="back-up-settings" class="btn btn-success">
+        설정 백업
+      </button>
+    </div>
+    <div class="setting">
+      <button type="button" id="restore-settings" class="btn btn-danger">
+        설정 불러오기
+      </button>
+      새로운 설정을 불러오면, 현재 설정은 사라집니다.
+    </div>
+    <div class="setting">
+      <button type="button" id="back-up-sync-settings" class="btn btn-warning">
+        설정 찾기
+      </button>
+      업데이트 후 설정이 사라지셨나요? 이 버튼을 눌러서 예전의 설정을 찾을 수
+      있습니다. 백업 후 설정 불러오기로 업로드 해주세요.
+    </div>
+    <hr />
+    <div id="version" class="version"></div>
+  </body>
 </html>

@@ -8,7 +8,7 @@ $(document).ready(() => {
   findAndFilterUser('table.bd_lst tbody', 'tr', 'td.author span a');
   findAndFilterPostTitleInPostView();
   setUpRepliesObserver();
-  chrome.storage.sync.get(
+  chrome.storage.local.get(
     [
       'fmkFilter::hideToday',
       'fmkFilter::hidePolitics',
@@ -24,7 +24,7 @@ $(document).ready(() => {
       res['fmkFilter::hideReplies'] &&
         res['fmkFilter::numHideReplies'] &&
         hideReplies(parseFloat(res['fmkFilter::numHideReplies']));
-      res['fmkFilter::users'] && hideUsers();
+      res['fmkFilter::users'] && hideUserReplies();
     }
   );
   openLinksInNewTab();
@@ -44,7 +44,7 @@ function findAndFilterPostTitleInPostView() {
   const categoryKey = `fmkFilter::${category}`;
   const titleKey = `fmkFilter::keywords`;
   const userKey = `fmkFilter::users`;
-  chrome.storage.sync.get([categoryKey, titleKey, userKey], (res) => {
+  chrome.storage.local.get([categoryKey, titleKey, userKey], (res) => {
     // Check categories
     if (res[categoryKey] === false) {
       hide(titleElem, 'blur');
@@ -62,7 +62,7 @@ function findAndFilterPostTitleInPostView() {
     // Check user
     if (res[userKey]) {
       for ([hiddenUser, enabled] of Object.entries(res[userKey])) {
-        if (enabled && author?.includes(hiddenUser)) {
+        if (enabled && author === hiddenUser) {
           hide(titleElem, 'blur');
           return;
         }
@@ -73,7 +73,7 @@ function findAndFilterPostTitleInPostView() {
 
 function setUpRepliesObserver() {
   const observer = new MutationObserver(() => {
-    chrome.storage.sync.get(
+    chrome.storage.local.get(
       [
         'fmkFilter::hideReplies',
         'fmkFilter::numHideReplies',
@@ -83,7 +83,7 @@ function setUpRepliesObserver() {
         res['fmkFilter::hideReplies'] &&
           res['fmkFilter::numHideReplies'] &&
           hideReplies(parseFloat(res['fmkFilter::numHideReplies']));
-        res['fmkFilter::users'] && hideUsers();
+        res['fmkFilter::users'] && hideUserReplies();
       }
     );
   });
@@ -98,7 +98,7 @@ function setUpRepliesObserver() {
 }
 
 function hideReplies(numHideReplies) {
-  chrome.storage.sync.get(
+  chrome.storage.local.get(
     [
       'fmkFilter::hideRepliesCountMethod',
       'fmkFilter::numHideReplies',
@@ -142,7 +142,7 @@ function findAndFilterCategories() {
     .each(function () {
       const href = $(this).find('.category').children('a').attr('href');
       const key = `fmkFilter::${href}`;
-      chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (res) => {
+      chrome.storage.local.get([key, 'fmkFilter::filterMode'], (res) => {
         if (res[key] === false) {
           hide(this, res['fmkFilter::filterMode']);
         }
@@ -156,7 +156,7 @@ function findAndFilterKeyword(listElemType, postElemType, titleElemType) {
     .each(function () {
       const title = $(this).find(`${titleElemType}.title`).children('a').text();
       const key = `fmkFilter::keywords`;
-      chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (res) => {
+      chrome.storage.local.get([key, 'fmkFilter::filterMode'], (res) => {
         if (res[key]) {
           for ([keyword, enabled] of Object.entries(res[key])) {
             if (enabled && title.includes(keyword)) {
@@ -168,8 +168,8 @@ function findAndFilterKeyword(listElemType, postElemType, titleElemType) {
     });
 }
 
-function hideUsers() {
-  chrome.storage.sync.get(
+function hideUserReplies() {
+  chrome.storage.local.get(
     ['fmkFilter::users', 'fmkFilter::hideRepliesMode'],
     (res) => {
       const hiddenUsers = res['fmkFilter::users'];
@@ -193,10 +193,10 @@ function findAndFilterUser(listElemType, postElemType, titleElemType) {
         $(this).find(titleElemType).text().split('/ ')[1] ||
         $(this).find(titleElemType).text();
       const key = `fmkFilter::users`;
-      chrome.storage.sync.get([key, 'fmkFilter::filterMode'], (res) => {
+      chrome.storage.local.get([key, 'fmkFilter::filterMode'], (res) => {
         if (res[key]) {
           for ([hiddenUser, enabled] of Object.entries(res[key])) {
-            if (enabled && user?.includes(hiddenUser)) {
+            if (enabled && user === hiddenUser) {
               hide(this, res['fmkFilter::filterMode']);
             }
           }
@@ -238,7 +238,7 @@ function openLinksInNewTab() {
     if (!href) {
       href = e.target.parentNode.href;
     }
-    chrome.storage.sync.get('fmkFilter::openLinksInNewTab', (res) => {
+    chrome.storage.local.get('fmkFilter::openLinksInNewTab', (res) => {
       if (res['fmkFilter::openLinksInNewTab']) {
         chrome.runtime.sendMessage({ link: href });
       } else {

@@ -33,6 +33,23 @@
         </li>
       </ul>
       <div id="content-category">
+        <div
+          id="main-banner"
+          class="alert alert-info alert-dismissible fade show"
+          role="alert">
+          <strong
+            >업데이트 후 환경설정이 사라지셨나요? 설정에서 '환경설정 찾기'를
+            사용해주세요.</strong
+          >
+          <button
+            type="button"
+            id="main-banner-close"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
         <div class="header">
           <h3>펨코 포텐 필터</h3>
           <div>포텐에서 보기 싫은 갤러리 필터하기</div>
@@ -128,10 +145,19 @@
         <div class="inputs">
           <div class="w-100">
             <div class="flex-between">
-              <label for="input-user">닉네임</label><input type="text" id="input-user" maxlength="32" placeholder="32자 이내 (필수)"/>
+              <label for="input-user">닉네임</label
+              ><input
+                type="text"
+                id="input-user"
+                maxlength="32"
+                placeholder="32자 이내 (필수)" />
             </div>
             <div class="flex-between">
-              <label for="input-reason">사유</label><textarea id="input-reason" maxlength="256" placeholder="256자 이내 (선택)"></textarea>
+              <label for="input-reason">사유</label
+              ><textarea
+                id="input-reason"
+                maxlength="256"
+                placeholder="256자 이내 (선택)"></textarea>
             </div>
           </div>
           <button type="button" id="button-user" class="btn btn-success">
