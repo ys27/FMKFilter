@@ -168,13 +168,14 @@ function getStoredValues(type) {
         for (const [value, enabled] of Object.entries(
           res[`fmkFilter::${type}s`]
         )) {
-          $(`#${type}s`).append(`
-                    <li class="list-group-item d-flex justify-content-between align-items-center ${type}">
-                        ${value}${
-            res[`fmkFilter::userReasons`][value]
+          const text = `${value}${
+            type === 'user' && res[`fmkFilter::userReasons`][value]
               ? ` (${res['fmkFilter::userReasons'][value]})`
               : ''
-          }
+          }`;
+          $(`#${type}s`).append(`
+                    <li class="list-group-item d-flex justify-content-between align-items-center" title="${text}">
+                        <div class="list-group-item-text">${text}</div>
                         <div>
                             <span id="toggle-${type}::${value}" ${
             enabled

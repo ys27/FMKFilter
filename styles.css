@@ -94,6 +94,13 @@ input[type='radio'] {
 	color: #4E78D0;
 }
 
+.list-group-item-text {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 170px;
+}
+
 .version {
 	margin-top: 20px;
 }
